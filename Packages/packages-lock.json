@@ -21,6 +21,13 @@
       "dependencies": {},
       "hash": "6f308a6e1ce58f53ae21defa9bb54b80d03f1135"
     },
+    "com.nenuacho.ecslite.interval-systems": {
+      "version": "https://github.com/nenuacho/ecslite-interval-systems.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "108fd330cc5da2a569a5fda3825ef791576b4350"
+    },
     "com.unity.2d.animation": {
       "version": "9.1.0",
       "depth": 1,

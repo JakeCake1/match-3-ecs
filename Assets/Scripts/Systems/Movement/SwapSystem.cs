@@ -18,6 +18,8 @@ namespace Systems.Movement
     private EcsPool<BusyCell> _busyCellPool;
     private EcsPool<PlacedChip> _placedChipPool;
     
+    private EcsPool<InCheck> _inCheckPool;
+    
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
@@ -28,6 +30,7 @@ namespace Systems.Movement
 
       _gridPositionPool = _world.GetPool<GridPosition>();
 
+      _inCheckPool = _world.GetPool<InCheck>();
       _busyCellPool = _world.GetPool<BusyCell>();
       _placedChipPool = _world.GetPool<PlacedChip>();
     }
@@ -37,28 +40,42 @@ namespace Systems.Movement
       foreach (int commandEntityIndex in _ecsFilter)
       {
         ref SwapCombination swapCombination = ref _swapCombinationPool.Get(commandEntityIndex);
-        Swap(swapCombination.Pair.Item1, swapCombination.Pair.Item2);
+        Swap(swapCombination.Pair.Item1, swapCombination.Pair.Item2, swapCombination.IsUserInitiated);
 
         _world.DelEntity(commandEntityIndex);
       }
     }
     
-    private void Swap(Chip firstChip, Chip secondChip)
+    private void Swap(Chip firstChip, Chip secondChip, bool isUserInitiated)
     {
-      (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
-
       ref GridPosition firstChipPosition = ref _gridPositionPool.Get(firstChip.ChipEntityIndex);
       ref GridPosition secondChipPosition = ref _gridPositionPool.Get(secondChip.ChipEntityIndex);
-
+      
+      (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
       (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
+      
+      DetachChips(firstChip, secondChip);
+      
+      if(isUserInitiated)
+        MarkAsCheckNeeded(firstChip, secondChip);
+    }
 
-      _gridPositionPool.Get(secondChip.ChipEntityIndex);
-
+    private void DetachChips(Chip firstChip, Chip secondChip)
+    {
       _busyCellPool.Del(firstChip.ParentCellEntityIndex);
       _busyCellPool.Del(secondChip.ParentCellEntityIndex);
 
       _placedChipPool.Del(firstChip.ChipEntityIndex);
       _placedChipPool.Del(secondChip.ChipEntityIndex);
+    }
+
+    private void MarkAsCheckNeeded(Chip firstChip, Chip secondChip)
+    {
+      ref InCheck inCheckFirstChip = ref _inCheckPool.Add(firstChip.ChipEntityIndex);
+      inCheckFirstChip.RelatedChip = secondChip;
+      
+      ref InCheck inCheckSecond = ref _inCheckPool.Add(secondChip.ChipEntityIndex);
+      inCheckSecond.RelatedChip = firstChip;
     }
   }
 }

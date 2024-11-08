@@ -1,8 +1,10 @@
 using Data;
 using Leopotam.EcsLite;
+using Nenuacho.EcsLite.IntervalSystems;
 using Systems.Camera;
 using Systems.Chips;
 using Systems.Control;
+using Systems.Field_State;
 using Systems.Grid;
 using Systems.Injector;
 using Systems.Movement;
@@ -13,8 +15,10 @@ using Views;
 internal sealed class EcsStartup : MonoBehaviour
 {
   private EcsWorld _world;
-  private IEcsSystems _systems;
   
+  private IEcsSystems _systems;
+  private EcsRunSystemsWithInterval _systemsWithInterval;
+
   private CellView _cellViewPrefab;  
   private ChipView _chipViewPrefab;
 
@@ -40,6 +44,7 @@ internal sealed class EcsStartup : MonoBehaviour
   private void Start()
   {
     _world = new EcsWorld();
+    
     _systems = new EcsSystems(_world);
     _systems
       .Add (new CreateFieldSystem(_fieldData))
@@ -60,10 +65,18 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
       .Init();
+    
+    _systemsWithInterval = new EcsRunSystemsWithInterval(_world);
+    _systemsWithInterval
+      .Add(new ReturnNotMergedSystem(), 1f)
+      .Init();
   }
 
-  private void Update() => 
+  private void Update()
+  {
     _systems?.Run();
+    _systemsWithInterval?.Run(Time.deltaTime);
+  }
 
   private void OnDestroy()
   {
@@ -73,19 +86,19 @@ internal sealed class EcsStartup : MonoBehaviour
 
   private void CleanupSystems()
   {
-    if (_systems != null)
-    {
-      _systems.Destroy();
-      _systems = null;
-    }
+    if (_systems == null)
+      return;
+    
+    _systems.Destroy();
+    _systems = null;
   }
 
   private void CleanupWorlds()
   {
-    if (_world != null)
-    {
-      _world.Destroy();
-      _world = null;
-    }
+    if (_world == null)
+      return;
+    
+    _world.Destroy();
+    _world = null;
   }
 }

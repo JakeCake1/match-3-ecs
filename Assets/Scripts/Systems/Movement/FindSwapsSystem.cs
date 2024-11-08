@@ -70,33 +70,17 @@ namespace Systems.Movement
       if (!secondChipFound) 
         return;
       
-      int swapCombinationEntity = _world.NewEntity();
-      ref SwapCombination swapCombination = ref _world.GetPool<SwapCombination>().Add(swapCombinationEntity);
-      swapCombination.Pair = (firstChip, secondChip);
+      CreateSwapCombination(firstChip, secondChip);
     }
 
-    private bool FindSecondChip(GridPosition gridPosition, Field field, SwapCommand swapCommand, out Chip secondChip)
+    private void CreateSwapCombination(Chip firstChip, Chip secondChip)
     {
-      gridPosition.Position += swapCommand.Ray.Item2;
-
-      secondChip = default;
-      bool isFound = false;
-
-      try
-      {
-        GridPosition secondElementPosition = field.Grid[gridPosition.Position.x, gridPosition.Position.y];
-
-        BusyCell busyCell = _busyCellPool.Get(secondElementPosition.EntityIndex);
-        secondChip = _chipPool.Get(busyCell.ChipEntityIndex);
-
-        isFound = true;
-      }
-      catch (IndexOutOfRangeException exception)
-      {
-        Debug.Log(exception);
-      }
-
-      return isFound;
+      int swapCombinationEntity = _world.NewEntity();
+      
+      ref SwapCombination swapCombination = ref _world.GetPool<SwapCombination>().Add(swapCombinationEntity);
+      
+      swapCombination.Pair = (firstChip, secondChip);
+      swapCombination.IsUserInitiated = true;
     }
 
     private bool FindFirstChipForSwap(SwapCommand swapCommand, out Chip chip, out GridPosition gridPosition)
@@ -118,6 +102,30 @@ namespace Systems.Movement
       }
 
       return raycastHit2D;
+    }
+
+    private bool FindSecondChip(GridPosition gridPosition, Field field, SwapCommand swapCommand, out Chip secondChip)
+    {
+      gridPosition.Position += swapCommand.Ray.Item2;
+
+      secondChip = default;
+      bool isFound = false;
+
+      try
+      {
+        GridPosition secondElementPosition = field.Grid[gridPosition.Position.x, gridPosition.Position.y];
+
+        BusyCell busyCell = _busyCellPool.Get(secondElementPosition.EntityIndex);
+        secondChip = _chipPool.Get(busyCell.ChipEntityIndex);
+
+        isFound = true;
+      }
+      catch (IndexOutOfRangeException)
+      {
+        Debug.Log("Ooops, reached borders");
+      }
+
+      return isFound;
     }
   }
 }

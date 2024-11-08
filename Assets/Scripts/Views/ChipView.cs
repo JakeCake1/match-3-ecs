@@ -36,10 +36,5 @@ namespace Views
 
     public void Destroy() => 
       Destroy(gameObject);
-
-    private void OnMouseUpAsButton()
-    {
-      
-    }
   }
 }
