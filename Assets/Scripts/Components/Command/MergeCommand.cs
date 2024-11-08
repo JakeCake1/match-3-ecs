@@ -5,6 +5,6 @@ namespace Components.Command
 {
   public struct MergeCommand
   {
-    public List<Chip> Chips;
+    public Queue<Chip> Chips;
   }
 }

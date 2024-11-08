@@ -15,18 +15,18 @@ using Views;
 internal sealed class EcsStartup : MonoBehaviour
 {
   private EcsWorld _world;
-  
+
   private IEcsSystems _systems;
   private EcsRunSystemsWithInterval _systemsWithInterval;
 
-  private CellView _cellViewPrefab;  
+  private CellView _cellViewPrefab;
   private ChipView _chipViewPrefab;
 
   private FieldData _fieldData;
-  
+
   private CameraData _cameraData;
   private Camera _camera;
-  
+
   private ChipInjectorsData _chipInjectorsData;
 
   [Inject]
@@ -44,31 +44,37 @@ internal sealed class EcsStartup : MonoBehaviour
   private void Start()
   {
     _world = new EcsWorld();
-    
+
     _systems = new EcsSystems(_world);
     _systems
-      .Add (new CreateFieldSystem(_fieldData))
-      .Add (new CreateCellViewSystem(_cellViewPrefab, _fieldData))
-      .Add (new CameraResizeSystem(_camera, _cameraData))
-      .Add (new CreateChipsInjectorsSystem(_chipInjectorsData))
+      .Add(new CreateFieldSystem(_fieldData))
+      .Add(new CreateCellViewSystem(_cellViewPrefab, _fieldData))
+      .Add(new CameraResizeSystem(_camera, _cameraData))
+      .Add(new CreateChipsInjectorsSystem(_chipInjectorsData))
       
-      .Add (new CreateChipsSystem(_fieldData))
-      .Add (new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
-      .Add (new FindSwapsSystem(_camera))
-      .Add (new SwapSystem())
-      .Add (new SetPositionInGridSystem())
-      .Add (new RechargeInjectorsSystem())
-      .Add (new DestroyChipsSystem())
-      .Add (new VerticalShiftSystem())
-      .Add (new ControlSystem())
+      .Add(new CreateChipsSystem(_fieldData))
+      .Add(new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
+      .Add(new FindSwapsSystem(_camera))
+      .Add(new SwapSystem())
+      .Add(new SetPositionInGridSystem())
+      .Add(new RechargeInjectorsSystem())
+      .Add(new DestroyChipsSystem())
+      .Add(new VerticalShiftSystem())
+      .Add(new VerticalCheckSystem())
+      .Add(new HorizontalCheckSystem())
+      .Add(new ExecuteMergeSystem())     
+      .Add(new ReturnNotMergedSystem())
+      
+      .Add(new ControlSystem())
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
       .Init();
-    
+
     _systemsWithInterval = new EcsRunSystemsWithInterval(_world);
     _systemsWithInterval
-      .Add(new ReturnNotMergedSystem(), 1f)
+
+      //.Add(new HorizontalCheckSystem(), 1f)
       .Init();
   }
 
@@ -88,7 +94,7 @@ internal sealed class EcsStartup : MonoBehaviour
   {
     if (_systems == null)
       return;
-    
+
     _systems.Destroy();
     _systems = null;
   }
@@ -97,7 +103,7 @@ internal sealed class EcsStartup : MonoBehaviour
   {
     if (_world == null)
       return;
-    
+
     _world.Destroy();
     _world = null;
   }
