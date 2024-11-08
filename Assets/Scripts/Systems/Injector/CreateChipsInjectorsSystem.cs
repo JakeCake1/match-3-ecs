@@ -1,5 +1,6 @@
 using Components.Chips;
 using Components.Common;
+using Components.Injector;
 using Data;
 using Leopotam.EcsLite;
 using UnityEngine;

@@ -1,6 +1,6 @@
 namespace Components.Chips
 {
-  public struct InCheck
+  public struct ChipInCheck
   {
     public Chip RelatedChip;
   }

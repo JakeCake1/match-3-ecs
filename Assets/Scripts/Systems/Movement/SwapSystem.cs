@@ -18,7 +18,7 @@ namespace Systems.Movement
     private EcsPool<BusyCell> _busyCellPool;
     private EcsPool<PlacedChip> _placedChipPool;
     
-    private EcsPool<InCheck> _inCheckPool;
+    private EcsPool<ChipInCheck> _inCheckPool;
     
     public void Init(IEcsSystems systems)
     {
@@ -30,7 +30,7 @@ namespace Systems.Movement
 
       _gridPositionPool = _world.GetPool<GridPosition>();
 
-      _inCheckPool = _world.GetPool<InCheck>();
+      _inCheckPool = _world.GetPool<ChipInCheck>();
       _busyCellPool = _world.GetPool<BusyCell>();
       _placedChipPool = _world.GetPool<PlacedChip>();
     }
@@ -71,11 +71,11 @@ namespace Systems.Movement
 
     private void MarkAsCheckNeeded(Chip firstChip, Chip secondChip)
     {
-      ref InCheck inCheckFirstChip = ref _inCheckPool.Add(firstChip.ChipEntityIndex);
-      inCheckFirstChip.RelatedChip = secondChip;
+      ref ChipInCheck chipInCheckFirstChip = ref _inCheckPool.Add(firstChip.ChipEntityIndex);
+      chipInCheckFirstChip.RelatedChip = secondChip;
       
-      ref InCheck inCheckSecond = ref _inCheckPool.Add(secondChip.ChipEntityIndex);
-      inCheckSecond.RelatedChip = firstChip;
+      ref ChipInCheck chipInCheckSecond = ref _inCheckPool.Add(secondChip.ChipEntityIndex);
+      chipInCheckSecond.RelatedChip = firstChip;
     }
   }
 }
