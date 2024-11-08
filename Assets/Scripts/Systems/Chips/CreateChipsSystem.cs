@@ -1,12 +1,19 @@
 using Components.Cell;
 using Components.Chips;
 using Components.Common;
+using Data;
 using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Systems.Chips
 {
   public class CreateChipsSystem : IEcsRunSystem
   {
+    private FieldData _fieldData;
+
+    public CreateChipsSystem(FieldData fieldData) => 
+      _fieldData = fieldData;
+
     public void Run(IEcsSystems systems)
     {
       EcsWorld world = systems.GetWorld();
@@ -28,9 +35,10 @@ namespace Systems.Chips
         {
           int chipEntity = world.NewEntity();
 
-          chipsPool.Add(chipEntity);
+          ref Chip chip = ref chipsPool.Add(chipEntity);
           ref GridPosition chipPosition = ref gridPositionPool.Add(chipEntity);
 
+          chip.Type = Random.Range(0, _fieldData.ChipsCount);
           chipPosition.Position = gridPositionPool.Get(injectorEntityIndex).Position;
 
           chipsInjectorPool.Del(injectorEntityIndex);

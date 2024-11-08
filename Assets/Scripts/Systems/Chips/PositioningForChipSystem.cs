@@ -17,6 +17,8 @@ namespace Systems.Chips
       var positionsPool = world.GetPool<GridPosition>();
       var busyCellPool = world.GetPool<BusyCell>();
       var placedChipPool = world.GetPool<PlacedChip>();
+      
+      var chipViewRefPool = world.GetPool<ChipViewRef>();
 
       var fieldPool = world.GetPool<Field>();
 
@@ -32,7 +34,8 @@ namespace Systems.Chips
             continue;
           
           chipPosition.Position = field.Grid[chipPosition.Position.x, y].Position;
-
+          chipViewRefPool.Get(entityChipIndex).ChipView.SetPosition(chipPosition.Position);
+            
           placedChipPool.Add(entityChipIndex);
           busyCellPool.Add(field.Grid[chipPosition.Position.x, y].EntityIndex);
 

@@ -13,18 +13,21 @@ internal sealed class EcsStartup : MonoBehaviour
   private EcsWorld _world;
   private IEcsSystems _systems;
   
-  private CellView _cellViewPrefab;
+  private CellView _cellViewPrefab;  
+  private ChipView _chipViewPrefab;
+
   private FieldData _fieldData;
   
   private CameraData _cameraData;
   private Camera _camera;
   
   private ChipInjectorsData _chipInjectorsData;
-  
+
   [Inject]
   public void Construct(CellView cellViewPrefab, FieldData fieldData, Camera camera,
-    CameraData cameraData, ChipInjectorsData chipInjectorsData)
+    CameraData cameraData, ChipInjectorsData chipInjectorsData, ChipView chipViewPrefab)
   {
+    _chipViewPrefab = chipViewPrefab;
     _chipInjectorsData = chipInjectorsData;
     _cameraData = cameraData;
     _camera = camera;
@@ -41,7 +44,8 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add (new CreateCellViewSystem(_cellViewPrefab, _fieldData))
       .Add (new CameraResizeSystem(_camera, _cameraData))
       .Add (new CreateChipsInjectorsSystem(_chipInjectorsData))
-      .Add (new CreateChipsSystem())
+      .Add (new CreateChipsSystem(_fieldData))
+      .Add (new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
       .Add (new PositioningForChipSystem())
       .Add (new RechargeInjectorsSystem())
 #if UNITY_EDITOR

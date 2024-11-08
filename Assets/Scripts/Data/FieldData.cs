@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Data
@@ -7,5 +8,13 @@ namespace Data
   {
     public Vector2 Offset;
     public Vector2Int Size;
+    
+    public int ChipsCount;
+
+    private void OnValidate()
+    {
+      if (ChipsCount > 7)
+        ChipsCount = 7;
+    }
   }
 }

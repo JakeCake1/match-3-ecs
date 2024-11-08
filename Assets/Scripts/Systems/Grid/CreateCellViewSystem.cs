@@ -24,22 +24,23 @@ namespace Systems.Grid
       var parentObject = new GameObject("Grid");
 
       EcsWorld world = systems.GetWorld();
-      
+
       var filter = world.Filter<Cell>().Inc<GridPosition>().Exc<CellViewRef>().End();
-      
+
       var cellPool = world.GetPool<CellViewRef>();
       var positionPool = world.GetPool<GridPosition>();
-      
-      foreach (int entity in filter) {
+
+      foreach (int entity in filter)
+      {
         ref CellViewRef cellViewRef = ref cellPool.Add(entity);
         ref GridPosition gridPosition = ref positionPool.Get(entity);
 
         var cellView = Object.Instantiate(_cellViewPrefab, parentObject.transform).GetComponent<CellView>();
         cellView.transform.position = gridPosition.Position + _fieldData.Offset * gridPosition.Position;
-        
+
         cellViewRef.CellView = cellView;
       }
-      
+
       Debug.Log("Init: CreateCellViewSystem");
     }
   }

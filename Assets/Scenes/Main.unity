@@ -298,6 +298,7 @@ MonoBehaviour:
   _camera: {fileID: 519420031}
   _cameraData: {fileID: 11400000, guid: 990994037bdb43c4f9efbd3201419bdb, type: 2}
   _chipInjectorsData: {fileID: 11400000, guid: 9c06f665b9b4df4408b6d50cb2983a5d, type: 2}
+  _chipViewPrefab: {fileID: 210723606133238887, guid: 42adce84bd02d9149883cf9f11b1accf, type: 3}
 --- !u!4 &981067233
 Transform:
   m_ObjectHideFlags: 0
