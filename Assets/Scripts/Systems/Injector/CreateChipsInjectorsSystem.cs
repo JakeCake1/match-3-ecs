@@ -4,7 +4,7 @@ using Data;
 using Leopotam.EcsLite;
 using UnityEngine;
 
-namespace Systems.Grid
+namespace Systems.Injector
 {
   public class CreateChipsInjectorsSystem : IEcsInitSystem
   {

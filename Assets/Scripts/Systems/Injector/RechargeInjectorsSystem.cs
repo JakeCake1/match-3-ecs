@@ -4,7 +4,7 @@ using Components.Common;
 using Leopotam.EcsLite;
 using UnityEngine;
 
-namespace Systems.Chips
+namespace Systems.Injector
 {
   public class RechargeInjectorsSystem : IEcsInitSystem, IEcsRunSystem
   {

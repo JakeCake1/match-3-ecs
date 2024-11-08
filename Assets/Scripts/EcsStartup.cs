@@ -5,6 +5,7 @@ using Systems.Camera;
 using Systems.Chips;
 using Systems.Control;
 using Systems.Grid;
+using Systems.Injector;
 using Systems.Movement;
 using UnityEngine;
 using VContainer;
