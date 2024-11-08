@@ -19,14 +19,27 @@ namespace Views
     };
     
     private Vector2 _fieldDataOffset;
+    
+    public int Entity { get; private set; }
 
-    public void Construct(Vector2 fieldDataOffset) => 
+    public void Construct(int entity, Vector2 fieldDataOffset)
+    {
+      Entity = entity;
       _fieldDataOffset = fieldDataOffset;
+    }
 
     public void SetPosition(Vector2Int chipPosition) => 
       transform.position = chipPosition + _fieldDataOffset * chipPosition;
 
     public void SetType(int chipType) => 
       SpriteRenderer.color = _chipsColors[chipType];
+
+    public void Destroy() => 
+      Destroy(gameObject);
+
+    private void OnMouseUpAsButton()
+    {
+      
+    }
   }
 }

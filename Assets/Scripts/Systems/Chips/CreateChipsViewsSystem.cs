@@ -57,7 +57,7 @@ namespace Systems.Chips
         
         var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
         
-        chipView.Construct(_fieldData.Offset);
+        chipView.Construct(chipEntity, _fieldData.Offset);
         
         chipView.SetPosition(gridPosition.Position);
         chipView.SetType(chip.Type);
