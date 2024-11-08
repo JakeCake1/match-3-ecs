@@ -5,6 +5,7 @@ using Systems.Camera;
 using Systems.Chips;
 using Systems.Control;
 using Systems.Grid;
+using Systems.Movement;
 using UnityEngine;
 using VContainer;
 using Views;
@@ -47,9 +48,10 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add (new CreateChipsInjectorsSystem(_chipInjectorsData))
       .Add (new CreateChipsSystem(_fieldData))
       .Add (new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
-      .Add (new PositioningForChipSystem())
+      .Add (new SetPositionInGridSystem())
       .Add (new RechargeInjectorsSystem())
       .Add (new DestroyChipsSystem())
+      .Add (new VerticalShiftSystem())
       .Add (new ControlSystem(_camera))
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
