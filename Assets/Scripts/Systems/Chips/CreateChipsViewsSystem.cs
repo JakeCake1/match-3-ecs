@@ -7,10 +7,20 @@ using Views;
 
 namespace Systems.Chips
 {
-  public class CreateChipsViewsSystem : IEcsRunSystem
+  public class CreateChipsViewsSystem : IEcsInitSystem, IEcsRunSystem
   {
     private readonly ChipView _chipViewPrefab;
     private readonly FieldData _fieldData;
+    
+    private EcsWorld _world;
+    
+    private EcsFilter _filterChips;
+    
+    private EcsPool<Chip> _chipsPool;
+    private EcsPool<GridPosition> _gridPositionPool;
+    private EcsPool<ChipViewRef> _chipViewRefPool;
+    
+    private Transform _chipsParent;
 
     public CreateChipsViewsSystem(FieldData fieldData, ChipView chipViewPrefab)
     {
@@ -18,27 +28,34 @@ namespace Systems.Chips
       _chipViewPrefab = chipViewPrefab;
     }
 
+    public void Init(IEcsSystems systems)
+    {
+      _chipsParent = new GameObject("Chips").transform;
+      
+      _world = systems.GetWorld();
+
+      _filterChips = _world.Filter<Chip>().Exc<ChipViewRef>().End();
+      
+      _chipsPool = _world.GetPool<Chip>();
+      _gridPositionPool = _world.GetPool<GridPosition>();
+      
+      _chipViewRefPool = _world.GetPool<ChipViewRef>();
+      
+      Debug.Log($"Init: {GetType().Name}");
+    }
+
     public void Run(IEcsSystems systems)
     {    
-      EcsWorld world = systems.GetWorld();
-
-      var filterChips = world.Filter<Chip>().Exc<ChipViewRef>().End();
-      
-      var chipsPool = world.GetPool<Chip>();
-      var gridPositionPool = world.GetPool<GridPosition>();
-      
-      var chipViewRefPool = world.GetPool<ChipViewRef>();
-
-      if (filterChips.GetEntitiesCount() == 0)
+      if (_filterChips.GetEntitiesCount() == 0)
         return;
       
-      foreach (int chipEntity in filterChips)
+      foreach (int chipEntity in _filterChips)
       {
-        ref ChipViewRef chipViewRef = ref chipViewRefPool.Add(chipEntity);
-        ref GridPosition gridPosition = ref gridPositionPool.Get(chipEntity);
-        ref Chip chip = ref chipsPool.Get(chipEntity);
+        ref ChipViewRef chipViewRef = ref _chipViewRefPool.Add(chipEntity);
+        ref GridPosition gridPosition = ref _gridPositionPool.Get(chipEntity);
+        ref Chip chip = ref _chipsPool.Get(chipEntity);
         
-        var chipView = Object.Instantiate(_chipViewPrefab).GetComponent<ChipView>();
+        var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
         
         chipView.Construct(_fieldData.Offset);
         
@@ -48,7 +65,7 @@ namespace Systems.Chips
         chipViewRef.ChipView = chipView;
       }
       
-      Debug.Log("Init: CreateChipsViewsSystem");
+      Debug.Log($"Run: {GetType().Name}");
     }
   }
 }

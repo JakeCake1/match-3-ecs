@@ -41,7 +41,7 @@ namespace Systems.Grid
         cellViewRef.CellView = cellView;
       }
 
-      Debug.Log("Init: CreateCellViewSystem");
+      Debug.Log($"Init: {GetType().Name}");
     }
   }
 }

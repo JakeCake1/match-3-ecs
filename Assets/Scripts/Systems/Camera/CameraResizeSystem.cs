@@ -30,7 +30,7 @@ namespace Systems.Camera
       SetCameraCenter(maxGridCorner, minGridCorner);
       SetCameraSize(maxGridCorner, minGridCorner);
 
-      Debug.Log("Init: CameraResizeSystem");
+      Debug.Log($"Init: {GetType().Name}");
     }
 
     private void DefineGridCorners(EcsFilter filter, EcsPool<CellViewRef> cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)

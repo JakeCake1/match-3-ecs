@@ -3,45 +3,68 @@ using Components.Chips;
 using Components.Common;
 using Components.Field;
 using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Systems.Chips
 {
-  public class PositioningForChipSystem : IEcsRunSystem
+  public class PositioningForChipSystem : IEcsInitSystem, IEcsRunSystem
   {
+    private EcsWorld _world;
+    
+    private EcsFilter _filterChips;
+    
+    private EcsPool<GridPosition> _positionsPool;
+    private EcsPool<BusyCell> _busyCellPool;
+    private EcsPool<PlacedChip> _placedChipPool;
+    private EcsPool<ChipViewRef> _chipViewRefPool;
+    private EcsPool<Field> _fieldPool;
+    
+    private Field _field;
+
+    public void Init(IEcsSystems systems)
+    {  
+      _world = systems.GetWorld();
+
+      _filterChips = _world.Filter<Chip>().Inc<GridPosition>().Exc<PlacedChip>().End();
+
+      _positionsPool = _world.GetPool<GridPosition>();
+      _busyCellPool = _world.GetPool<BusyCell>();
+      _placedChipPool = _world.GetPool<PlacedChip>();
+      
+      _chipViewRefPool = _world.GetPool<ChipViewRef>();
+
+      _fieldPool = _world.GetPool<Field>();
+
+      _field = _fieldPool.GetRawDenseItems()[1];
+      
+      Debug.Log($"Init: {GetType().Name}");
+    }
+
     public void Run(IEcsSystems systems)
     {
-      EcsWorld world = systems.GetWorld();
-
-      var filterChips = world.Filter<Chip>().Inc<GridPosition>().Exc<PlacedChip>().End();
-
-      var positionsPool = world.GetPool<GridPosition>();
-      var busyCellPool = world.GetPool<BusyCell>();
-      var placedChipPool = world.GetPool<PlacedChip>();
+      if(_filterChips.GetEntitiesCount() == 0)
+        return;
       
-      var chipViewRefPool = world.GetPool<ChipViewRef>();
-
-      var fieldPool = world.GetPool<Field>();
-
-      Field field = fieldPool.GetRawDenseItems()[1];
-      
-      foreach (int entityChipIndex in filterChips)
+      foreach (int entityChipIndex in _filterChips)
       {
-        ref GridPosition chipPosition = ref positionsPool.Get(entityChipIndex);
+        ref GridPosition chipPosition = ref _positionsPool.Get(entityChipIndex);
 
-        for (int y = 0; y < field.Grid.GetLength(1); y++)
+        for (int y = 0; y < _field.Grid.GetLength(1); y++)
         {
-          if(busyCellPool.Has(field.Grid[chipPosition.Position.x, y].EntityIndex))
+          if(_busyCellPool.Has(_field.Grid[chipPosition.Position.x, y].EntityIndex))
             continue;
           
-          chipPosition.Position = field.Grid[chipPosition.Position.x, y].Position;
-          chipViewRefPool.Get(entityChipIndex).ChipView.SetPosition(chipPosition.Position);
+          chipPosition.Position = _field.Grid[chipPosition.Position.x, y].Position;
+          _chipViewRefPool.Get(entityChipIndex).ChipView.SetPosition(chipPosition.Position);
             
-          placedChipPool.Add(entityChipIndex);
-          busyCellPool.Add(field.Grid[chipPosition.Position.x, y].EntityIndex);
+          _placedChipPool.Add(entityChipIndex);
+          _busyCellPool.Add(_field.Grid[chipPosition.Position.x, y].EntityIndex);
 
           break;
         }
       }
+      
+      Debug.Log($"Run: {GetType().Name}");
     }
   }
 }

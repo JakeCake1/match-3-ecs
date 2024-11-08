@@ -32,7 +32,7 @@ namespace Systems.Grid
         }
       }
 
-      Debug.Log("Init: CreateFieldSystem");
+      Debug.Log($"Init: {GetType().Name}");
     }
 
     private GridPosition CreateCellEntity(EcsWorld world, int x, int y)
