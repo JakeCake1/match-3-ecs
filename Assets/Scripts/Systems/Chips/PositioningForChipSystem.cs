@@ -13,12 +13,13 @@ namespace Systems.Chips
     
     private EcsFilter _filterChips;
     
+    private EcsPool<Chip> _chipPool;
     private EcsPool<GridPosition> _positionsPool;
     private EcsPool<BusyCell> _busyCellPool;
     private EcsPool<PlacedChip> _placedChipPool;
     private EcsPool<ChipViewRef> _chipViewRefPool;
     private EcsPool<Field> _fieldPool;
-    
+
     private Field _field;
 
     public void Init(IEcsSystems systems)
@@ -27,6 +28,7 @@ namespace Systems.Chips
 
       _filterChips = _world.Filter<Chip>().Inc<GridPosition>().Exc<PlacedChip>().End();
 
+      _chipPool = _world.GetPool<Chip>();
       _positionsPool = _world.GetPool<GridPosition>();
       _busyCellPool = _world.GetPool<BusyCell>();
       _placedChipPool = _world.GetPool<PlacedChip>();
@@ -60,6 +62,8 @@ namespace Systems.Chips
           _placedChipPool.Add(entityChipIndex);
           _busyCellPool.Add(_field.Grid[chipPosition.Position.x, y].EntityIndex);
 
+          _chipPool.Get(entityChipIndex).ParentCellEnitiyIndex = _field.Grid[chipPosition.Position.x, y].EntityIndex;
+            
           break;
         }
       }

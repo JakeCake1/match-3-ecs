@@ -6,15 +6,17 @@ using UnityEngine;
 
 namespace Systems.Chips
 {
-  public class RechargeInjectorsSystem : IEcsInitSystem, IEcsRunSystem 
+  public class RechargeInjectorsSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
-    
+
     private EcsFilter _filterInjectors;
     private EcsFilter _filterCells;
-    
+
     private EcsPool<BusyCell> _busyPool;
     private EcsPool<ReadyInjector> _readyPool;
+    
+    private EcsPool<GridPosition> _gridPositionPool;
 
     public void Init(IEcsSystems systems)
     {
@@ -22,28 +24,37 @@ namespace Systems.Chips
 
       _filterInjectors = _world.Filter<ChipsInjector>().Exc<ReadyInjector>().End();
       _filterCells = _world.Filter<Cell>().Inc<GridPosition>().Exc<BusyCell>().End();
-      
+
+      _gridPositionPool = _world.GetPool<GridPosition>();
       _busyPool = _world.GetPool<BusyCell>();
-      _readyPool = _world.GetPool<ReadyInjector>();    
-      
+      _readyPool = _world.GetPool<ReadyInjector>();
+
       Debug.Log($"Init: {GetType().Name}");
     }
 
     public void Run(IEcsSystems systems)
-    {   
-      if(_filterCells.GetEntitiesCount() == 0)
+    {
+      if (_filterCells.GetEntitiesCount() == 0)
         return;
-      
-      foreach (int injectorEntityIndex in _filterInjectors)
+
       foreach (int cellsEntityIndex in _filterCells)
       {
-        if(_busyPool.Has(cellsEntityIndex))
+        if (_busyPool.Has(cellsEntityIndex))
           continue;
-        
-        if(!_readyPool.Has(injectorEntityIndex))
-          _readyPool.Add(injectorEntityIndex);
+
+        foreach (int injectorEntityIndex in _filterInjectors)
+        {
+          if (_gridPositionPool.Get(injectorEntityIndex).Position.x == _gridPositionPool.Get(cellsEntityIndex).Position.x)
+          {
+            if (_readyPool.Has(injectorEntityIndex))
+              continue;
+            
+            _readyPool.Add(injectorEntityIndex);
+            break;
+          }
+        }
       }
-      
+
       Debug.Log($"Run: {GetType().Name}");
     }
   }
