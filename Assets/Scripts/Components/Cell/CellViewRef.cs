@@ -1,6 +1,6 @@
 using Views;
 
-namespace Components
+namespace Components.Cell
 {
   public struct CellViewRef
   {

@@ -1,6 +1,8 @@
+using Components;
 using Data;
 using Leopotam.EcsLite;
 using Systems.Camera;
+using Systems.Chips;
 using Systems.Grid;
 using UnityEngine;
 using VContainer;
@@ -16,10 +18,14 @@ internal sealed class EcsStartup : MonoBehaviour
   
   private CameraData _cameraData;
   private Camera _camera;
-
+  
+  private ChipInjectorsData _chipInjectorsData;
+  
   [Inject]
-  public void Construct(CellView cellViewPrefab, FieldData fieldData, Camera camera, CameraData cameraData)
+  public void Construct(CellView cellViewPrefab, FieldData fieldData, Camera camera,
+    CameraData cameraData, ChipInjectorsData chipInjectorsData)
   {
+    _chipInjectorsData = chipInjectorsData;
     _cameraData = cameraData;
     _camera = camera;
     _fieldData = fieldData;
@@ -34,6 +40,10 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add (new CreateFieldSystem(_fieldData))
       .Add (new CreateCellViewSystem(_cellViewPrefab, _fieldData))
       .Add (new CameraResizeSystem(_camera, _cameraData))
+      .Add (new CreateChipsInjectorsSystem(_chipInjectorsData))
+      .Add (new CreateChipsSystem())
+      .Add (new PositioningForChipSystem())
+      .Add (new RechargeInjectorsSystem())
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif

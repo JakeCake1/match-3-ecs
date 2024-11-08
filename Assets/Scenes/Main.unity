@@ -297,6 +297,7 @@ MonoBehaviour:
   _fieldData: {fileID: 11400000, guid: 85fa1711b9924434da177dda3d9f8739, type: 2}
   _camera: {fileID: 519420031}
   _cameraData: {fileID: 11400000, guid: 990994037bdb43c4f9efbd3201419bdb, type: 2}
+  _chipInjectorsData: {fileID: 11400000, guid: 9c06f665b9b4df4408b6d50cb2983a5d, type: 2}
 --- !u!4 &981067233
 Transform:
   m_ObjectHideFlags: 0
