@@ -92,8 +92,10 @@ namespace Systems.Movement
       _chipViewRefPool.Get(freeChipEntityIndex).ChipView.SetPosition(chipPosition.Position);
 
       _placedChipPool.Add(freeChipEntityIndex);
-      _busyCellPool.Add(cellEntityIndex);
-
+      
+      ref BusyCell busyCell = ref _busyCellPool.Add(cellEntityIndex);
+      busyCell.ChipEntityIndex = freeChipEntityIndex;
+      
       _chipPool.Get(freeChipEntityIndex).ParentCellEntityIndex = cellEntityIndex;
     }
 

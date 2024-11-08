@@ -55,10 +55,11 @@ namespace Systems.Chips
         ref GridPosition gridPosition = ref _gridPositionPool.Get(chipEntity);
         ref Chip chip = ref _chipsPool.Get(chipEntity);
         
+        chip.ChipEntityIndex = chipEntity;
+        
         var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
         
         chipView.Construct(chipEntity, _fieldData.Offset);
-        
         chipView.SetPosition(gridPosition.Position);
         chipView.SetType(chip.Type);
         

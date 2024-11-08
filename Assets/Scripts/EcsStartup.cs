@@ -1,4 +1,3 @@
-using Components;
 using Data;
 using Leopotam.EcsLite;
 using Systems.Camera;
@@ -47,13 +46,16 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add (new CreateCellViewSystem(_cellViewPrefab, _fieldData))
       .Add (new CameraResizeSystem(_camera, _cameraData))
       .Add (new CreateChipsInjectorsSystem(_chipInjectorsData))
+      
       .Add (new CreateChipsSystem(_fieldData))
       .Add (new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
+      .Add (new FindSwapsSystem(_camera))
+      .Add (new SwapSystem())
       .Add (new SetPositionInGridSystem())
       .Add (new RechargeInjectorsSystem())
       .Add (new DestroyChipsSystem())
       .Add (new VerticalShiftSystem())
-      .Add (new ControlSystem(_camera))
+      .Add (new ControlSystem())
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif

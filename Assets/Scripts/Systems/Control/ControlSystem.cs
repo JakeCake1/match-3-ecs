@@ -1,45 +1,43 @@
-﻿using Components.Chips;
+using System;
+using Components.Command;
+using Lean.Touch;
 using Leopotam.EcsLite;
 using UnityEngine;
-using Views;
 
 namespace Systems.Control
 {
-  public class ControlSystem : IEcsInitSystem, IEcsRunSystem
+  public class ControlSystem : IEcsInitSystem, IEcsDestroySystem
   {
-    private readonly UnityEngine.Camera _camera;
-    
     private EcsWorld _world;
-    
-    private EcsPool<ChipForDestroy> _chipsForDestroyPool;
-
-    public ControlSystem(UnityEngine.Camera camera) => 
-      _camera = camera;
+    private EcsPool<SwapCommand> _commandPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
-      _chipsForDestroyPool = _world.GetPool<ChipForDestroy>();
-      
-      Debug.Log($"Init: {GetType().Name}");
+      _commandPool = _world.GetPool<SwapCommand>();
+
+      LeanTouch.OnFingerSwipe += HandleFingerSwipe;
     }
 
-    public void Run(IEcsSystems systems)
+    public void Destroy(IEcsSystems systems)
     {
-      if (Input.GetMouseButtonDown(0))
-      {
-        var ray = _camera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit2D raycastHit2D = Physics2D.Raycast(ray.origin, ray.direction);
-        
-        if (raycastHit2D)
-        {
-          var chipView = raycastHit2D.collider.GetComponent<ChipView>();
-          if (chipView) 
-            _chipsForDestroyPool.Add(chipView.Entity);
-        }
-        
-        Debug.Log($"Run: {GetType().Name}");
-      }
+      LeanTouch.OnFingerSwipe -= HandleFingerSwipe;
+    }
+
+    void HandleFingerSwipe(LeanFinger finger)
+    {
+      int commandEntity = _world.NewEntity();
+      ref SwapCommand swapCommand = ref _commandPool.Add(commandEntity);
+
+      swapCommand.Ray = (finger.StartScreenPosition, GetDirection(finger));
+    }
+
+    Vector2Int GetDirection(LeanFinger leanFinger)
+    {
+      Vector2 direction = leanFinger.LastScreenPosition - leanFinger.StartScreenPosition;
+      direction = direction.normalized;
+      
+      return new Vector2Int((int)Math.Round(direction.x), (int)Math.Round(direction.y));
     }
   }
 }
