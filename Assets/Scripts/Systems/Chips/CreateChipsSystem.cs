@@ -36,9 +36,7 @@ namespace Systems.Chips
       _chipsPool = _world.GetPool<ChipComponent>();
       
       _gridPositionPool = _world.GetPool<GridPositionComponent>();
-      _chipsInjectorPool = _world.GetPool<ReadyInjectorComponent>();   
-      
-      Debug.Log($"Init: {GetType().Name}");
+      _chipsInjectorPool = _world.GetPool<ReadyInjectorComponent>();
     }
 
     public void Run(IEcsSystems systems)
@@ -48,21 +46,16 @@ namespace Systems.Chips
       
       foreach (int injectorEntityIndex in _filterChipsInjector)
       {
-        if (_chipsInjectorPool.Has(injectorEntityIndex))
-        {
-          int chipEntity = _world.NewEntity();
+        int chipEntity = _world.NewEntity();
 
-          ref ChipComponent chip = ref _chipsPool.Add(chipEntity);
-          ref GridPositionComponent chipPosition = ref _gridPositionPool.Add(chipEntity);
+        ref ChipComponent chip = ref _chipsPool.Add(chipEntity);
+        ref GridPositionComponent chipPosition = ref _gridPositionPool.Add(chipEntity);
 
-          chip.Type = Random.Range(0, _fieldData.ChipsCount);
-          chipPosition.Position = _gridPositionPool.Get(injectorEntityIndex).Position;
+        chip.Type = Random.Range(0, _fieldData.ChipsCount);
+        chipPosition.Position = _gridPositionPool.Get(injectorEntityIndex).Position;
 
-          _chipsInjectorPool.Del(injectorEntityIndex);
-        }
+        _chipsInjectorPool.Del(injectorEntityIndex);
       }
-      
-      Debug.Log($"Run: {GetType().Name}");
     }
   }
 }
