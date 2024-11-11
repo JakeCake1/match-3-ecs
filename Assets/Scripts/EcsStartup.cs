@@ -9,6 +9,7 @@ using Systems.Grid;
 using Systems.Injector;
 using Systems.Movement;
 using Systems.Score;
+using Systems.Score.View_Systems;
 using UnityEngine;
 using VContainer;
 using Views;
@@ -22,6 +23,7 @@ internal sealed class EcsStartup : MonoBehaviour
 
   private CellView _cellViewPrefab;
   private ChipView _chipViewPrefab;
+  private ScoreView _scoreViewPrefab;
 
   private FieldData _fieldData;
 
@@ -32,8 +34,9 @@ internal sealed class EcsStartup : MonoBehaviour
 
   [Inject]
   public void Construct(CellView cellViewPrefab, FieldData fieldData, Camera camera,
-    CameraData cameraData, ChipInjectorsData chipInjectorsData, ChipView chipViewPrefab)
+    CameraData cameraData, ChipInjectorsData chipInjectorsData, ChipView chipViewPrefab, ScoreView scoreViewPrefab)
   {
+    _scoreViewPrefab = scoreViewPrefab;
     _chipViewPrefab = chipViewPrefab;
     _chipInjectorsData = chipInjectorsData;
     _cameraData = cameraData;
@@ -69,7 +72,9 @@ internal sealed class EcsStartup : MonoBehaviour
       
       .Add(new ControlSystem())
       
-      .Add(new AddScoreSystem())
+      .Add(new ScoreCountSystem())
+      .Add(new CreateScoreViewSystem(_scoreViewPrefab))
+      .Add(new CreateAddScoreSystem())
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
