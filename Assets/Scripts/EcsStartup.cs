@@ -54,7 +54,7 @@ internal sealed class EcsStartup : MonoBehaviour
 
     _systems = new EcsSystems(_world);
     _systems
-      .Add(new CreateFieldSystem(_fieldData))
+      .Add(new CreateFieldInitSystem(_fieldData))
       .Add(new CreateCellViewSystem(_cellViewPrefab, _fieldData))
       .Add(new CameraResizeInitSystem(_camera, _cameraData))
       .Add(new CreateChipsInjectorsSystem(_chipInjectorsData))
