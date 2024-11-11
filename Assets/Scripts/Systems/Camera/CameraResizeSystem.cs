@@ -22,8 +22,8 @@ namespace Systems.Camera
     {
       EcsWorld world = systems.GetWorld();
       
-      var filter = world.Filter<Cell>().Inc<GridPosition>().Inc<CellViewRef>().End();
-      var cellViewPool = world.GetPool<CellViewRef>();
+      var filter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Inc<CellViewRefComponent>().End();
+      var cellViewPool = world.GetPool<CellViewRefComponent>();
 
       DefineGridCorners(filter, cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner);
 
@@ -33,14 +33,14 @@ namespace Systems.Camera
       Debug.Log($"Init: {GetType().Name}");
     }
 
-    private void DefineGridCorners(EcsFilter filter, EcsPool<CellViewRef> cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)
+    private void DefineGridCorners(EcsFilter filter, EcsPool<CellViewRefComponent> cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)
     {
       minGridCorner = Vector2.positiveInfinity;
       maxGridCorner = Vector2.negativeInfinity;
       
       foreach (int entityIndex in filter)
       {
-        ref CellViewRef cellViewRef = ref cellViewPool.Get(entityIndex);
+        ref CellViewRefComponent cellViewRef = ref cellViewPool.Get(entityIndex);
 
         maxGridCorner = Vector2.Max( cellViewRef.CellView.transform.position, maxGridCorner);
         minGridCorner = Vector2.Min( cellViewRef.CellView.transform.position, minGridCorner);

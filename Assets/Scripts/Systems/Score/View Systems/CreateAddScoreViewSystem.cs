@@ -14,8 +14,8 @@ namespace Systems.Score.View_Systems
 
     private EcsFilter _addedScoresFilter;
 
-    private EcsPool<ShowAddedScoreCount> _addedScoresPool;
-    private EcsPool<AddScoreViewRef> _addScoreViewRefsPool;
+    private EcsPool<ShowAddedScoreCountComponent> _addedScoresPool;
+    private EcsPool<AddScoreViewRefComponent> _addScoreViewRefsPool;
     
     private int _addScoreViewEntityIndex;
 
@@ -26,10 +26,10 @@ namespace Systems.Score.View_Systems
     {
       _world = systems.GetWorld();
       
-      _addedScoresFilter = _world.Filter<ShowAddedScoreCount>().End();
+      _addedScoresFilter = _world.Filter<ShowAddedScoreCountComponent>().End();
       
-      _addedScoresPool = _world.GetPool<ShowAddedScoreCount>();
-      _addScoreViewRefsPool = _world.GetPool<AddScoreViewRef>();
+      _addedScoresPool = _world.GetPool<ShowAddedScoreCountComponent>();
+      _addScoreViewRefsPool = _world.GetPool<AddScoreViewRefComponent>();
       
       CreateAddScoreView();
     }
@@ -38,7 +38,7 @@ namespace Systems.Score.View_Systems
     {
       _addScoreViewEntityIndex = _world.NewEntity();
 
-      ref AddScoreViewRef addScoreViewRef = ref _addScoreViewRefsPool.Add(_addScoreViewEntityIndex);
+      ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Add(_addScoreViewEntityIndex);
       addScoreViewRef.AddScoreView = Object.Instantiate(_addScoreViewPrefab);
     }
 
@@ -46,7 +46,7 @@ namespace Systems.Score.View_Systems
     {
       foreach (int addedScoreEntityIndex in _addedScoresFilter)
       {
-        ref AddScoreViewRef addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
+        ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
         addScoreViewRef.AddScoreView.SetCount(_addedScoresPool.Get(addedScoreEntityIndex).AddedScore);
         
         _world.DelEntity(addedScoreEntityIndex);

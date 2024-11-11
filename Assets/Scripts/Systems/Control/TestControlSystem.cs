@@ -12,7 +12,7 @@ namespace Systems.Control
     
     private EcsWorld _world;
     
-    private EcsPool<ChipForDestroy> _chipsForDestroyPool;
+    private EcsPool<ChipForDestroyComponent> _chipsForDestroyPool;
 
     public TestControlSystem(UnityEngine.Camera camera) => 
       _camera = camera;
@@ -20,7 +20,7 @@ namespace Systems.Control
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
-      _chipsForDestroyPool = _world.GetPool<ChipForDestroy>();
+      _chipsForDestroyPool = _world.GetPool<ChipForDestroyComponent>();
       
       Debug.Log($"Init: {GetType().Name}");
     }

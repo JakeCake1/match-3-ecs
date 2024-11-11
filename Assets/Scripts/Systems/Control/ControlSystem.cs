@@ -9,12 +9,12 @@ namespace Systems.Control
   public class ControlSystem : IEcsInitSystem, IEcsDestroySystem
   {
     private EcsWorld _world;
-    private EcsPool<SwapCommand> _commandPool;
+    private EcsPool<SwapCommandComponent> _commandPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
-      _commandPool = _world.GetPool<SwapCommand>();
+      _commandPool = _world.GetPool<SwapCommandComponent>();
 
       LeanTouch.OnFingerSwipe += HandleFingerSwipe;
     }
@@ -27,7 +27,7 @@ namespace Systems.Control
     void HandleFingerSwipe(LeanFinger finger)
     {
       int commandEntity = _world.NewEntity();
-      ref SwapCommand swapCommand = ref _commandPool.Add(commandEntity);
+      ref SwapCommandComponent swapCommand = ref _commandPool.Add(commandEntity);
 
       swapCommand.Ray = (finger.StartScreenPosition, GetDirection(finger));
     }

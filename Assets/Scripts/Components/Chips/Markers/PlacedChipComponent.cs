@@ -1,5 +1,5 @@
 namespace Components.Chips.Markers
 {
-  public struct PlacedChip
+  public struct PlacedChipComponent
   { }
 }

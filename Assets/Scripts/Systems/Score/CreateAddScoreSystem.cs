@@ -13,31 +13,31 @@ namespace Systems.Score
     
     private EcsFilter _addScoreCommandsFilter;
     
-    private EcsPool<AddScoreCommand> _scoreCommandsPool;
-    private EcsPool<ShowAddedScoreCount> _showAddedScoreViewPool;
+    private EcsPool<AddScoreCommandComponent> _scoreCommandsPool;
+    private EcsPool<ShowAddedScoreCountComponent> _showAddedScoreViewPool;
     
-    private EcsPool<ScoreCount> _scoreCountPool;
-    private EcsPool<UpdateScore> _updateScoreViewPool;
+    private EcsPool<ScoreCountComponent> _scoreCountPool;
+    private EcsPool<UpdateScoreComponent> _updateScoreViewPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _addScoreCommandsFilter = _world.Filter<AddScoreCommand>().End();
+      _addScoreCommandsFilter = _world.Filter<AddScoreCommandComponent>().End();
 
-      _scoreCommandsPool = _world.GetPool<AddScoreCommand>();
-      _showAddedScoreViewPool = _world.GetPool<ShowAddedScoreCount>();
+      _scoreCommandsPool = _world.GetPool<AddScoreCommandComponent>();
+      _showAddedScoreViewPool = _world.GetPool<ShowAddedScoreCountComponent>();
 
-      _scoreCountPool = _world.GetPool<ScoreCount>();
-      _updateScoreViewPool = _world.GetPool<UpdateScore>();
+      _scoreCountPool = _world.GetPool<ScoreCountComponent>();
+      _updateScoreViewPool = _world.GetPool<UpdateScoreComponent>();
     }
 
     public void Run(IEcsSystems systems)
     {
       foreach (int commandEntityIndex in _addScoreCommandsFilter)
       {
-        ref AddScoreCommand addScoreCommand = ref _scoreCommandsPool.Get(commandEntityIndex);
-        ref ScoreCount scoreCount = ref _scoreCountPool.GetRawDenseItems()[1];
+        ref AddScoreCommandComponent addScoreCommand = ref _scoreCommandsPool.Get(commandEntityIndex);
+        ref ScoreCountComponent scoreCount = ref _scoreCountPool.GetRawDenseItems()[1];
         
         scoreCount.PlayerScore += ScoreModifier * addScoreCommand.ScoreCount;
       
@@ -50,10 +50,10 @@ namespace Systems.Score
       }
     }
 
-    private void CreateAddScoreViewEntity(AddScoreCommand addScoreCommand)
+    private void CreateAddScoreViewEntity(AddScoreCommandComponent addScoreCommand)
     {
       int addScoreViewEntityIndex = _world.NewEntity();
-      ref ShowAddedScoreCount showAddedScoreCount = ref _showAddedScoreViewPool.Add(addScoreViewEntityIndex);
+      ref ShowAddedScoreCountComponent showAddedScoreCount = ref _showAddedScoreViewPool.Add(addScoreViewEntityIndex);
       showAddedScoreCount.AddedScore = ScoreModifier * addScoreCommand.ScoreCount;
     }
   }

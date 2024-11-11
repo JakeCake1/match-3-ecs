@@ -1,6 +1,6 @@
 namespace Components.Score.Markers
 {
-  public struct ShowAddedScoreCount
+  public struct ShowAddedScoreCountComponent
   {
     public int AddedScore;
   }

@@ -11,19 +11,19 @@ namespace Systems.Field_State
     
     private EcsFilter _chipFilter;
     
-    private EcsPool<Chip> _chipsPool;
-    private EcsPool<ChipInCheck> _inCheckPool;
-    private EcsPool<SwapCombination> _swapCombinationPool;
+    private EcsPool<ChipComponent> _chipsPool;
+    private EcsPool<ChipInCheckComponent> _inCheckPool;
+    private EcsPool<SwapCombinationComponent> _swapCombinationPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _chipFilter = _world.Filter<Chip>().Inc<ChipInCheck>().End();
+      _chipFilter = _world.Filter<ChipComponent>().Inc<ChipInCheckComponent>().End();
 
-      _chipsPool = _world.GetPool<Chip>();
-      _inCheckPool = _world.GetPool<ChipInCheck>();
-      _swapCombinationPool = _world.GetPool<SwapCombination>();
+      _chipsPool = _world.GetPool<ChipComponent>();
+      _inCheckPool = _world.GetPool<ChipInCheckComponent>();
+      _swapCombinationPool = _world.GetPool<SwapCombinationComponent>();
     }
 
     public void Run(IEcsSystems systems)
@@ -33,14 +33,14 @@ namespace Systems.Field_State
         if(!_inCheckPool.Has(chipEntityIndex))
           continue;
         
-        ref ChipInCheck chipInCheckChip = ref _inCheckPool.Get(chipEntityIndex);
+        ref ChipInCheckComponent chipInCheckChip = ref _inCheckPool.Get(chipEntityIndex);
 
         int swapCombinationEntity = _world.NewEntity();
-        ref SwapCombination swapCombination = ref _swapCombinationPool.Add(swapCombinationEntity);
+        ref SwapCombinationComponent swapCombination = ref _swapCombinationPool.Add(swapCombinationEntity);
         
-        swapCombination.Pair = (_chipsPool.Get(chipEntityIndex), _chipsPool.Get(chipInCheckChip.RelatedChip.ChipEntityIndex));
+        swapCombination.Pair = (_chipsPool.Get(chipEntityIndex), _chipsPool.Get(chipInCheckChip.RelatedChip.EntityIndex));
           
-        _inCheckPool.Del(chipInCheckChip.RelatedChip.ChipEntityIndex);
+        _inCheckPool.Del(chipInCheckChip.RelatedChip.EntityIndex);
         _inCheckPool.Del(chipEntityIndex);
       }
     }

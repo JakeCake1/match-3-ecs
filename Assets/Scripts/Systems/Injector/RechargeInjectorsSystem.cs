@@ -16,21 +16,21 @@ namespace Systems.Injector
     private EcsFilter _filterInjectors;
     private EcsFilter _filterCells;
 
-    private EcsPool<BusyCell> _busyPool;
-    private EcsPool<ReadyInjector> _readyPool;
+    private EcsPool<BusyCellComponent> _busyPool;
+    private EcsPool<ReadyInjectorComponent> _readyPool;
     
-    private EcsPool<GridPosition> _gridPositionPool;
+    private EcsPool<GridPositionComponent> _gridPositionPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _filterInjectors = _world.Filter<ChipsInjector>().Exc<ReadyInjector>().End();
-      _filterCells = _world.Filter<Cell>().Inc<GridPosition>().Exc<BusyCell>().End();
+      _filterInjectors = _world.Filter<ChipsInjectorComponent>().Exc<ReadyInjectorComponent>().End();
+      _filterCells = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
 
-      _gridPositionPool = _world.GetPool<GridPosition>();
-      _busyPool = _world.GetPool<BusyCell>();
-      _readyPool = _world.GetPool<ReadyInjector>();
+      _gridPositionPool = _world.GetPool<GridPositionComponent>();
+      _busyPool = _world.GetPool<BusyCellComponent>();
+      _readyPool = _world.GetPool<ReadyInjectorComponent>();
 
       Debug.Log($"Init: {GetType().Name}");
     }

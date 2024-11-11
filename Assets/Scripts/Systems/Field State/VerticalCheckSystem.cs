@@ -5,13 +5,13 @@ namespace Systems.Field_State
 {
   public class VerticalCheckSystem : LineCheckSystem
   {
-    protected override List<Queue<Chip>> FindLineCombinations(Chip[,] chips)
+    protected override List<Queue<ChipComponent>> FindLineCombinations(ChipComponent[,] chips)
     {
-      List<Queue<Chip>> combinations = new List<Queue<Chip>>();
+      List<Queue<ChipComponent>> combinations = new List<Queue<ChipComponent>>();
 
       for (int x = 0; x < chips.GetLength(0); x++)
       {
-        Queue<Chip> chipsCombo = new Queue<Chip>();
+        Queue<ChipComponent> chipsCombo = new Queue<ChipComponent>();
         
         for (int y = 0; y < chips.GetLength(1); y++)
         {
@@ -31,18 +31,18 @@ namespace Systems.Field_State
 
       return combinations;
 
-      void AddQueueToCombinationList(Queue<Chip> chipsCombo)
+      void AddQueueToCombinationList(Queue<ChipComponent> chipsCombo)
       {
         if (chipsCombo.Count >= 3) 
-          combinations.Add(new Queue<Chip>(chipsCombo));
+          combinations.Add(new Queue<ChipComponent>(chipsCombo));
 
         chipsCombo.Clear();
       }
     }
 
-    private void AddChipToQueue(Chip[,] chips, Queue<Chip> chipsCombo, int x, int y)
+    private void AddChipToQueue(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
     {
-      if(chips[x, y].ChipEntityIndex == 0)
+      if(chips[x, y].EntityIndex == 0)
         return;
       
       chipsCombo.Enqueue(chips[x, y]);

@@ -17,13 +17,13 @@ namespace Systems.Movement
 
     private EcsFilter _ecsFilter;
 
-    private EcsPool<SwapCommand> _swapCommandPool;
+    private EcsPool<SwapCommandComponent> _swapCommandPool;
 
-    private EcsPool<Chip> _chipPool;
-    private EcsPool<GridPosition> _gridPositionPool;
-    private EcsPool<BusyCell> _busyCellPool;
+    private EcsPool<ChipComponent> _chipPool;
+    private EcsPool<GridPositionComponent> _gridPositionPool;
+    private EcsPool<BusyCellComponent> _busyCellPool;
 
-    private Field _field;
+    private FieldComponent _field;
 
     private readonly UnityEngine.Camera _camera;
 
@@ -34,16 +34,16 @@ namespace Systems.Movement
     {
       _world = systems.GetWorld();
 
-      _ecsFilter = _world.Filter<SwapCommand>().End();
+      _ecsFilter = _world.Filter<SwapCommandComponent>().End();
 
-      _swapCommandPool = _world.GetPool<SwapCommand>();
+      _swapCommandPool = _world.GetPool<SwapCommandComponent>();
 
-      _chipPool = _world.GetPool<Chip>();
-      _gridPositionPool = _world.GetPool<GridPosition>();
+      _chipPool = _world.GetPool<ChipComponent>();
+      _gridPositionPool = _world.GetPool<GridPositionComponent>();
 
-      _busyCellPool = _world.GetPool<BusyCell>();
+      _busyCellPool = _world.GetPool<BusyCellComponent>();
 
-      var fieldPool = _world.GetPool<Field>();
+      var fieldPool = _world.GetPool<FieldComponent>();
       _field = fieldPool.GetRawDenseItems()[1];
     }
 
@@ -51,7 +51,7 @@ namespace Systems.Movement
     {
       foreach (int commandEntityIndex in _ecsFilter)
       {
-        ref SwapCommand swapCommand = ref _swapCommandPool.Get(commandEntityIndex);
+        ref SwapCommandComponent swapCommand = ref _swapCommandPool.Get(commandEntityIndex);
 
         TryToSwap(swapCommand);
 
@@ -59,17 +59,17 @@ namespace Systems.Movement
       }
     }
 
-    private void TryToSwap(SwapCommand swapCommand)
+    private void TryToSwap(SwapCommandComponent swapCommand)
     {
       if(swapCommand.Ray.Item2.sqrMagnitude > 1)
         return;
       
-      bool firstChipFound = FindFirstChipForSwap(swapCommand, out Chip firstChip, out GridPosition gridPosition);
+      bool firstChipFound = FindFirstChipForSwap(swapCommand, out ChipComponent firstChip, out GridPositionComponent gridPosition);
       
       if (!firstChipFound) 
         return;
       
-      bool secondChipFound = FindSecondChip(gridPosition, _field, swapCommand, out Chip secondChip);
+      bool secondChipFound = FindSecondChip(gridPosition, _field, swapCommand, out ChipComponent secondChip);
 
       if (!secondChipFound) 
         return;
@@ -77,17 +77,17 @@ namespace Systems.Movement
       CreateSwapCombination(firstChip, secondChip);
     }
 
-    private void CreateSwapCombination(Chip firstChip, Chip secondChip)
+    private void CreateSwapCombination(ChipComponent firstChip, ChipComponent secondChip)
     {
       int swapCombinationEntity = _world.NewEntity();
       
-      ref SwapCombination swapCombination = ref _world.GetPool<SwapCombination>().Add(swapCombinationEntity);
+      ref SwapCombinationComponent swapCombination = ref _world.GetPool<SwapCombinationComponent>().Add(swapCombinationEntity);
       
       swapCombination.Pair = (firstChip, secondChip);
       swapCombination.IsUserInitiated = true;
     }
 
-    private bool FindFirstChipForSwap(SwapCommand swapCommand, out Chip chip, out GridPosition gridPosition)
+    private bool FindFirstChipForSwap(SwapCommandComponent swapCommand, out ChipComponent chip, out GridPositionComponent gridPosition)
     {
       var ray = _camera.ScreenPointToRay(swapCommand.Ray.Item1);
       RaycastHit2D raycastHit2D = Physics2D.Raycast(ray.origin, ray.direction);
@@ -108,7 +108,7 @@ namespace Systems.Movement
       return raycastHit2D;
     }
 
-    private bool FindSecondChip(GridPosition gridPosition, Field field, SwapCommand swapCommand, out Chip secondChip)
+    private bool FindSecondChip(GridPositionComponent gridPosition, FieldComponent field, SwapCommandComponent swapCommand, out ChipComponent secondChip)
     {
       gridPosition.Position += swapCommand.Ray.Item2;
 
@@ -117,10 +117,10 @@ namespace Systems.Movement
 
       try
       {
-        GridPosition secondElementPosition = field.Grid[gridPosition.Position.x, gridPosition.Position.y];
+        GridPositionComponent secondElementPosition = field.Grid[gridPosition.Position.x, gridPosition.Position.y];
 
-        BusyCell busyCell = _busyCellPool.Get(secondElementPosition.EntityIndex);
-        secondChip = _chipPool.Get(busyCell.ChipEntityIndex);
+        BusyCellComponent busyCellComponent = _busyCellPool.Get(secondElementPosition.EntityIndex);
+        secondChip = _chipPool.Get(busyCellComponent.ChipEntityIndex);
 
         isFound = true;
       }

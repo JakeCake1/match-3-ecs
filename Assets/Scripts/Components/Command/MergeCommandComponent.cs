@@ -3,9 +3,9 @@ using Components.Chips;
 
 namespace Components.Command
 {
-  public struct MergeCommand
+  public struct MergeCommandComponent
   {
     public int CommandEntityIndex;
-    public Queue<Chip> Chips;
+    public Queue<ChipComponent> Chips;
   }
 }

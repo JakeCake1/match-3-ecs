@@ -1,5 +1,5 @@
 namespace Components.Cell
 {
-  public struct Cell
+  public struct CellComponent
   { }
 }

@@ -1,8 +1,8 @@
 namespace Components.Chips
 {
-  public struct Chip
+  public struct ChipComponent
   {
-    public int ChipEntityIndex;
+    public int EntityIndex;
     public int ParentCellEntityIndex;
     public int Type;
   }

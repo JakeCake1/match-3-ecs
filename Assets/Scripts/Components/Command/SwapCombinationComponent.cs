@@ -2,9 +2,9 @@ using Components.Chips;
 
 namespace Components.Command
 {
-  public struct SwapCombination
+  public struct SwapCombinationComponent
   {
-    public (Chip, Chip) Pair;
+    public (ChipComponent, ChipComponent) Pair;
     public bool IsUserInitiated;
   }
 }

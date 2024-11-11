@@ -19,12 +19,12 @@ namespace Systems.Score.View_Systems
 
     private void CreateScoreViewCounter(EcsWorld world)
     {
-      var scoreCountPool = world.GetPool<ScoreCountViewRef>();
-      var needCreateViewPool = world.GetPool<NeedCreateScoreCount>();
+      var scoreCountPool = world.GetPool<ScoreCountViewRefComponent>();
+      var needCreateViewPool = world.GetPool<NeedCreateScoreCountComponent>();
       
-      foreach (int scoreCountEntityIndex in world.Filter<ScoreCount>().Inc<NeedCreateScoreCount>().End())
+      foreach (int scoreCountEntityIndex in world.Filter<ScoreCountComponent>().Inc<NeedCreateScoreCountComponent>().End())
       {     
-        ref ScoreCountViewRef scoreCountViewRef = ref scoreCountPool.Add(scoreCountEntityIndex);
+        ref ScoreCountViewRefComponent scoreCountViewRef = ref scoreCountPool.Add(scoreCountEntityIndex);
         scoreCountViewRef.ScoreView = Object.Instantiate(_scoreViewPrefab.gameObject).GetComponent<ScoreView>();
           
         needCreateViewPool.Del(scoreCountEntityIndex);

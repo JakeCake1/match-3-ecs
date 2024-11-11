@@ -17,25 +17,25 @@ namespace Systems.Movement
     private EcsFilter _filterChips;
     private EcsFilter _filterNotBusyCells;
 
-    private EcsPool<GridPosition> _positionsPool;
-    private EcsPool<BusyCell> _busyCellPool;
-    private EcsPool<PlacedChip> _placedChipPool;
-    private EcsPool<Field> _fieldPool;
+    private EcsPool<GridPositionComponent> _positionsPool;
+    private EcsPool<BusyCellComponent> _busyCellPool;
+    private EcsPool<PlacedChipComponent> _placedChipPool;
+    private EcsPool<FieldComponent> _fieldPool;
 
-    private Field _field;
+    private FieldComponent _field;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _filterChips = _world.Filter<Chip>().Inc<GridPosition>().End();
-      _filterNotBusyCells = _world.Filter<Cell>().Inc<GridPosition>().Exc<BusyCell>().End();
+      _filterChips = _world.Filter<ChipComponent>().Inc<GridPositionComponent>().End();
+      _filterNotBusyCells = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
 
-      _positionsPool = _world.GetPool<GridPosition>();
-      _busyCellPool = _world.GetPool<BusyCell>();
-      _placedChipPool = _world.GetPool<PlacedChip>();
+      _positionsPool = _world.GetPool<GridPositionComponent>();
+      _busyCellPool = _world.GetPool<BusyCellComponent>();
+      _placedChipPool = _world.GetPool<PlacedChipComponent>();
       
-      _fieldPool = _world.GetPool<Field>();
+      _fieldPool = _world.GetPool<FieldComponent>();
 
       _field = _fieldPool.GetRawDenseItems()[1];
     }
@@ -50,7 +50,7 @@ namespace Systems.Movement
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("Free chips at this turn:");
         
-        ref GridPosition cellPosition = ref _positionsPool.Get(cellEntity);
+        ref GridPositionComponent cellPosition = ref _positionsPool.Get(cellEntity);
         
 
         for (int y = cellPosition.Position.y; y < _field.Grid.GetLength(1); y++)
@@ -65,7 +65,7 @@ namespace Systems.Movement
       }
     }
 
-    private void FreeChipIfItsFreeCellBelow(GridPosition cellPosition, StringBuilder stringBuilder)
+    private void FreeChipIfItsFreeCellBelow(GridPositionComponent cellPosition, StringBuilder stringBuilder)
     {
       foreach (int chipEntity in _filterChips)
       {
@@ -80,7 +80,7 @@ namespace Systems.Movement
       }
     }
 
-    private void FreeCell(int cellEntityIndex, GridPosition cellPosition, StringBuilder stringBuilder, int y)
+    private void FreeCell(int cellEntityIndex, GridPositionComponent cellPosition, StringBuilder stringBuilder, int y)
     {
       if (_busyCellPool.Has(cellEntityIndex))
       {

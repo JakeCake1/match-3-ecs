@@ -1,6 +1,6 @@
 namespace Components.Score
 {
-  public struct ScoreCount
+  public struct ScoreCountComponent
   {
     public int CounterEntityIndex;
     public int PlayerScore;

@@ -16,9 +16,9 @@ namespace Systems.Chips
     
     private EcsFilter _filterChips;
     
-    private EcsPool<Chip> _chipsPool;
-    private EcsPool<GridPosition> _gridPositionPool;
-    private EcsPool<ChipViewRef> _chipViewRefPool;
+    private EcsPool<ChipComponent> _chipsPool;
+    private EcsPool<GridPositionComponent> _gridPositionPool;
+    private EcsPool<ChipViewRefComponent> _chipViewRefPool;
     
     private Transform _chipsParent;
 
@@ -34,12 +34,12 @@ namespace Systems.Chips
       
       _world = systems.GetWorld();
 
-      _filterChips = _world.Filter<Chip>().Exc<ChipViewRef>().End();
+      _filterChips = _world.Filter<ChipComponent>().Exc<ChipViewRefComponent>().End();
       
-      _chipsPool = _world.GetPool<Chip>();
-      _gridPositionPool = _world.GetPool<GridPosition>();
+      _chipsPool = _world.GetPool<ChipComponent>();
+      _gridPositionPool = _world.GetPool<GridPositionComponent>();
       
-      _chipViewRefPool = _world.GetPool<ChipViewRef>();
+      _chipViewRefPool = _world.GetPool<ChipViewRefComponent>();
       
       Debug.Log($"Init: {GetType().Name}");
     }
@@ -51,11 +51,11 @@ namespace Systems.Chips
       
       foreach (int chipEntity in _filterChips)
       {
-        ref ChipViewRef chipViewRef = ref _chipViewRefPool.Add(chipEntity);
-        ref GridPosition gridPosition = ref _gridPositionPool.Get(chipEntity);
-        ref Chip chip = ref _chipsPool.Get(chipEntity);
+        ref ChipViewRefComponent chipViewRef = ref _chipViewRefPool.Add(chipEntity);
+        ref GridPositionComponent gridPosition = ref _gridPositionPool.Get(chipEntity);
+        ref ChipComponent chip = ref _chipsPool.Get(chipEntity);
         
-        chip.ChipEntityIndex = chipEntity;
+        chip.EntityIndex = chipEntity;
         
         var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
         

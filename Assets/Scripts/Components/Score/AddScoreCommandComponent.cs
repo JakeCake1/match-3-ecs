@@ -1,6 +1,6 @@
-namespace Components.Command
+namespace Components.Score
 {
-  public struct AddScoreCommand
+  public struct AddScoreCommandComponent
   {
     public int CommandEntityIndex;
     public int ScoreCount;

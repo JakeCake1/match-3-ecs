@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Components.Chips;
 using Components.Command;
+using Components.Command.Markers;
 using Leopotam.EcsLite;
 
 namespace Systems.Field_State
@@ -12,17 +13,17 @@ namespace Systems.Field_State
 
     private EcsFilter _emptyMergeCommandsFilter;
 
-    private EcsPool<MergeCommand> _mergeCommandPool;
-    private EcsPool<EmptyCommand> _emptyCommandPool;
+    private EcsPool<MergeCommandComponent> _mergeCommandPool;
+    private EcsPool<EmptyCommandComponent> _emptyCommandPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _emptyMergeCommandsFilter = _world.Filter<MergeCommand>().Inc<EmptyCommand>().End();
+      _emptyMergeCommandsFilter = _world.Filter<MergeCommandComponent>().Inc<EmptyCommandComponent>().End();
 
-      _mergeCommandPool = _world.GetPool<MergeCommand>();
-      _emptyCommandPool = _world.GetPool<EmptyCommand>();
+      _mergeCommandPool = _world.GetPool<MergeCommandComponent>();
+      _emptyCommandPool = _world.GetPool<EmptyCommandComponent>();
     }
 
     public void Run(IEcsSystems systems)
@@ -33,7 +34,7 @@ namespace Systems.Field_State
 
     private void OverwriteOverlappingCommands()
     {
-      MergeCommand[] commands = _mergeCommandPool.GetRawDenseItems();
+      MergeCommandComponent[] commands = _mergeCommandPool.GetRawDenseItems();
       
       for (var i = 0; i < commands.Length; i++)
       {
@@ -55,7 +56,7 @@ namespace Systems.Field_State
 
       void MergeOverlappedCommandsIntoFirstCommand(int firstCommandIndex, int secondCommandIndex)
       {
-        Queue<Chip> newQueueForCommand = new Queue<Chip>(commands[firstCommandIndex].Chips.Union(commands[secondCommandIndex].Chips));
+        Queue<ChipComponent> newQueueForCommand = new Queue<ChipComponent>(commands[firstCommandIndex].Chips.Union(commands[secondCommandIndex].Chips));
         commands[firstCommandIndex].Chips = newQueueForCommand;
       }
 

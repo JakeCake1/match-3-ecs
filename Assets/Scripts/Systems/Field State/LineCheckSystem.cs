@@ -11,10 +11,10 @@ namespace Systems.Field_State
   {
     private EcsWorld _world;
 
-    private Field _field;
+    private FieldComponent _field;
 
-    private EcsPool<Chip> _chipsPool;
-    private EcsPool<GridPosition> _gridPositionsPool;
+    private EcsPool<ChipComponent> _chipsPool;
+    private EcsPool<GridPositionComponent> _gridPositionsPool;
 
     private EcsFilter _chipFilter;
 
@@ -22,43 +22,43 @@ namespace Systems.Field_State
     {
       _world = systems.GetWorld();
 
-      _chipFilter = _world.Filter<Chip>().End();
+      _chipFilter = _world.Filter<ChipComponent>().End();
 
-      _chipsPool = _world.GetPool<Chip>();
-      _gridPositionsPool = _world.GetPool<GridPosition>();
+      _chipsPool = _world.GetPool<ChipComponent>();
+      _gridPositionsPool = _world.GetPool<GridPositionComponent>();
       
-      var fieldPool = _world.GetPool<Field>();
+      var fieldPool = _world.GetPool<FieldComponent>();
       _field = fieldPool.GetRawDenseItems()[1];
     }
 
     public void Run(IEcsSystems systems)
     {
-      Chip[,] chips = CreateChipsGrid();
-      List<Queue<Chip>> combinations = FindLineCombinations(chips);
+      ChipComponent[,] chips = CreateChipsGrid();
+      List<Queue<ChipComponent>> combinations = FindLineCombinations(chips);
       AddCombinationsToMergeBuffer(combinations);
     }
 
-    private Chip[,] CreateChipsGrid()
+    private ChipComponent[,] CreateChipsGrid()
     {
-      Chip[,] chips = new Chip[_field.Grid.GetLength(0), _field.Grid.GetLength(1)];
+      ChipComponent[,] chips = new ChipComponent[_field.Grid.GetLength(0), _field.Grid.GetLength(1)];
 
       foreach (int chipEntityIndex in _chipFilter)
       {
-        ref GridPosition gridPosition = ref _gridPositionsPool.Get(chipEntityIndex);
+        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntityIndex);
         chips[gridPosition.Position.x, gridPosition.Position.y] = _chipsPool.Get(chipEntityIndex);
       }
 
       return chips;
     }
 
-    protected abstract List<Queue<Chip>> FindLineCombinations(Chip[,] chips);
+    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ChipComponent[,] chips);
 
-    private void AddCombinationsToMergeBuffer(List<Queue<Chip>> combinations)
+    private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
     {
-      foreach (Queue<Chip> combination in combinations)
+      foreach (Queue<ChipComponent> combination in combinations)
       {
         int mergeCommandEntity = _world.NewEntity();
-        ref MergeCommand mergeCommand = ref _world.GetPool<MergeCommand>().Add(mergeCommandEntity);
+        ref MergeCommandComponent mergeCommand = ref _world.GetPool<MergeCommandComponent>().Add(mergeCommandEntity);
         
         mergeCommand.CommandEntityIndex = mergeCommandEntity;
         mergeCommand.Chips = combination;

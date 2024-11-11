@@ -84,12 +84,6 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
       .Init();
-
-    _systemsWithInterval = new EcsRunSystemsWithInterval(_world);
-    _systemsWithInterval
-
-      //.Add(new HorizontalCheckSystem(), 1f)
-      .Init();
   }
 
   private void Update()

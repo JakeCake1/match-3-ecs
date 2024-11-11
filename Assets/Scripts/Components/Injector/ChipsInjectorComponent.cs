@@ -1,5 +1,5 @@
 namespace Components.Injector
 {
-  public struct ChipsInjector
+  public struct ChipsInjectorComponent
   { }
 }

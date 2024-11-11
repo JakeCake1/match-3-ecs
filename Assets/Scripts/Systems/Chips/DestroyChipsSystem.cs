@@ -14,21 +14,21 @@ namespace Systems.Chips
     
     private EcsFilter _chipsForDestroyFilter;
     
-    private EcsPool<Chip> _chipsPool;
-    private EcsPool<BusyCell> _busyCellsPool;
+    private EcsPool<ChipComponent> _chipsPool;
+    private EcsPool<BusyCellComponent> _busyCellsPool;
     
-    private EcsPool<ChipViewRef> _chipViewsPool;
+    private EcsPool<ChipViewRefComponent> _chipViewsPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _chipsForDestroyFilter = _world.Filter<Chip>().Inc<GridPosition>().Inc<ChipViewRef>().Inc<ChipForDestroy>().End();
+      _chipsForDestroyFilter = _world.Filter<ChipComponent>().Inc<GridPositionComponent>().Inc<ChipViewRefComponent>().Inc<ChipForDestroyComponent>().End();
 
-      _chipsPool = _world.GetPool<Chip>();
-      _busyCellsPool = _world.GetPool<BusyCell>();
+      _chipsPool = _world.GetPool<ChipComponent>();
+      _busyCellsPool = _world.GetPool<BusyCellComponent>();
       
-      _chipViewsPool = _world.GetPool<ChipViewRef>();
+      _chipViewsPool = _world.GetPool<ChipViewRefComponent>();
       
       Debug.Log($"Init: {GetType().Name}");
     }

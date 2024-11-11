@@ -19,18 +19,18 @@ namespace Systems.Injector
     {
       EcsWorld world = systems.GetWorld();
       
-      EcsPool<GridPosition> gridPositionPool = world.GetPool<GridPosition>();
+      EcsPool<GridPositionComponent> gridPositionPool = world.GetPool<GridPositionComponent>();
 
       foreach (Vector2Int chipsInjectorsPosition in _chipInjectorsData.ChipsInjectorsPositions)
       {
         var chipInjectorEntityIndex = world.NewEntity();
-        world.GetPool<ChipsInjector>().Add(chipInjectorEntityIndex);
+        world.GetPool<ChipsInjectorComponent>().Add(chipInjectorEntityIndex);
 
-        ref GridPosition cellGridPosition = ref gridPositionPool.Add(chipInjectorEntityIndex);
+        ref GridPositionComponent cellGridPosition = ref gridPositionPool.Add(chipInjectorEntityIndex);
 
         cellGridPosition.Position = new Vector2Int(chipsInjectorsPosition.x, chipsInjectorsPosition.y);
 
-        world.GetPool<ReadyInjector>().Add(chipInjectorEntityIndex);
+        world.GetPool<ReadyInjectorComponent>().Add(chipInjectorEntityIndex);
       }
 
       Debug.Log("Init: CreateChipsInjectorsSystem");

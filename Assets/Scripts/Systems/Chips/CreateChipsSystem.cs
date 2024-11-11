@@ -19,9 +19,9 @@ namespace Systems.Chips
     private EcsFilter _filterChipsInjector;
     private EcsFilter _filterCell;
     
-    private EcsPool<Chip> _chipsPool;
-    private EcsPool<GridPosition> _gridPositionPool;
-    private EcsPool<ReadyInjector> _chipsInjectorPool;
+    private EcsPool<ChipComponent> _chipsPool;
+    private EcsPool<GridPositionComponent> _gridPositionPool;
+    private EcsPool<ReadyInjectorComponent> _chipsInjectorPool;
 
     public CreateChipsSystem(FieldData fieldData) => 
       _fieldData = fieldData;
@@ -30,13 +30,13 @@ namespace Systems.Chips
     {
       _world = systems.GetWorld();
      
-      _filterChipsInjector = _world.Filter<ChipsInjector>().Inc<ReadyInjector>().End();
-      _filterCell = _world.Filter<Cell>().Inc<GridPosition>().Exc<BusyCell>().End();
+      _filterChipsInjector = _world.Filter<ChipsInjectorComponent>().Inc<ReadyInjectorComponent>().End();
+      _filterCell = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
       
-      _chipsPool = _world.GetPool<Chip>();
+      _chipsPool = _world.GetPool<ChipComponent>();
       
-      _gridPositionPool = _world.GetPool<GridPosition>();
-      _chipsInjectorPool = _world.GetPool<ReadyInjector>();   
+      _gridPositionPool = _world.GetPool<GridPositionComponent>();
+      _chipsInjectorPool = _world.GetPool<ReadyInjectorComponent>();   
       
       Debug.Log($"Init: {GetType().Name}");
     }
@@ -52,8 +52,8 @@ namespace Systems.Chips
         {
           int chipEntity = _world.NewEntity();
 
-          ref Chip chip = ref _chipsPool.Add(chipEntity);
-          ref GridPosition chipPosition = ref _gridPositionPool.Add(chipEntity);
+          ref ChipComponent chip = ref _chipsPool.Add(chipEntity);
+          ref GridPositionComponent chipPosition = ref _gridPositionPool.Add(chipEntity);
 
           chip.Type = Random.Range(0, _fieldData.ChipsCount);
           chipPosition.Position = _gridPositionPool.Get(injectorEntityIndex).Position;

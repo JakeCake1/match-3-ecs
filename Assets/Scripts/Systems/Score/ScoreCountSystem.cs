@@ -11,9 +11,9 @@ namespace Systems.Score
 
     private EcsFilter _viewNeedUpdateFilter;
     
-    private EcsPool<UpdateScore> _updatePool;
-    private EcsPool<ScoreCountViewRef> _scoreCountViewPool;
-    private EcsPool<ScoreCount> _scoreCountPool;
+    private EcsPool<UpdateScoreComponent> _updatePool;
+    private EcsPool<ScoreCountViewRefComponent> _scoreCountViewPool;
+    private EcsPool<ScoreCountComponent> _scoreCountPool;
 
     private int _playerScoreEntity;
 
@@ -21,11 +21,11 @@ namespace Systems.Score
     {
       _world = systems.GetWorld();
 
-      _viewNeedUpdateFilter = _world.Filter<ScoreCountViewRef>().Inc<UpdateScore>().End();
+      _viewNeedUpdateFilter = _world.Filter<ScoreCountViewRefComponent>().Inc<UpdateScoreComponent>().End();
       
-      _scoreCountViewPool = _world.GetPool<ScoreCountViewRef>();
-      _updatePool = _world.GetPool<UpdateScore>();
-      _scoreCountPool = _world.GetPool<ScoreCount>();
+      _scoreCountViewPool = _world.GetPool<ScoreCountViewRefComponent>();
+      _updatePool = _world.GetPool<UpdateScoreComponent>();
+      _scoreCountPool = _world.GetPool<ScoreCountComponent>();
 
       CreateScoreCounter(_world);
     }
@@ -33,21 +33,21 @@ namespace Systems.Score
     private void CreateScoreCounter(EcsWorld world)
     {
       _playerScoreEntity = world.NewEntity();
-      var scoreCountPool = world.GetPool<ScoreCount>();
+      var scoreCountPool = world.GetPool<ScoreCountComponent>();
         
-      ref ScoreCount scoreCount = ref scoreCountPool.Add(_playerScoreEntity);
+      ref ScoreCountComponent scoreCount = ref scoreCountPool.Add(_playerScoreEntity);
 
       scoreCount.CounterEntityIndex = _playerScoreEntity;
       scoreCount.PlayerScore = 0;
 
-      world.GetPool<NeedCreateScoreCount>().Add(_playerScoreEntity);
+      world.GetPool<NeedCreateScoreCountComponent>().Add(_playerScoreEntity);
     }
 
     public void Run(IEcsSystems systems)
     {
       foreach (int scoreViewEntityIndex in _viewNeedUpdateFilter)
       { 
-        ref ScoreCountViewRef scoreCountViewRef = ref _scoreCountViewPool.Get(scoreViewEntityIndex);
+        ref ScoreCountViewRefComponent scoreCountViewRef = ref _scoreCountViewPool.Get(scoreViewEntityIndex);
         
         scoreCountViewRef.ScoreView.SetCount(_scoreCountPool.Get(_playerScoreEntity).PlayerScore);
         

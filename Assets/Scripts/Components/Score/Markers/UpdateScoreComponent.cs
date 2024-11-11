@@ -1,5 +1,5 @@
 namespace Components.Score.Markers
 {
-  public struct UpdateScore
+  public struct UpdateScoreComponent
   { }
 }

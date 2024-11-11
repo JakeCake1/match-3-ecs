@@ -21,13 +21,13 @@ namespace Systems.Grid
       int fieldHeight = _fieldData.Size.y;
       int fieldWidth = _fieldData.Size.x;
 
-      Field field = CreateFiledEntity(world, fieldWidth, fieldHeight);
+      FieldComponent field = CreateFiledEntity(world, fieldWidth, fieldHeight);
 
       for (int y = 0; y < fieldHeight; y++)
       {
         for (int x = 0; x < fieldWidth; x++)
         {
-          GridPosition cellGridPosition = CreateCellEntity(world, x, y);
+          GridPositionComponent cellGridPosition = CreateCellEntity(world, x, y);
           field.Grid[x, y] = cellGridPosition;
         }
       }
@@ -35,13 +35,13 @@ namespace Systems.Grid
       Debug.Log($"Init: {GetType().Name}");
     }
 
-    private GridPosition CreateCellEntity(EcsWorld world, int x, int y)
+    private GridPositionComponent CreateCellEntity(EcsWorld world, int x, int y)
     {
       int cellEntity = world.NewEntity();
-      world.GetPool<Cell>().Add(cellEntity);
+      world.GetPool<CellComponent>().Add(cellEntity);
 
-      EcsPool<GridPosition> gridPositionPool = world.GetPool<GridPosition>();
-      ref GridPosition cellGridPosition = ref gridPositionPool.Add(cellEntity);
+      EcsPool<GridPositionComponent> gridPositionPool = world.GetPool<GridPositionComponent>();
+      ref GridPositionComponent cellGridPosition = ref gridPositionPool.Add(cellEntity);
 
       cellGridPosition.Position = new Vector2Int(x, y);
       cellGridPosition.EntityIndex = cellEntity;
@@ -49,11 +49,11 @@ namespace Systems.Grid
       return cellGridPosition;
     }
 
-    private Field CreateFiledEntity(EcsWorld world, int fieldWidth, int fieldHeight)
+    private FieldComponent CreateFiledEntity(EcsWorld world, int fieldWidth, int fieldHeight)
     {
       var gridEntity = world.NewEntity();
-      ref Field field = ref world.GetPool<Field>().Add(gridEntity);
-      field.Grid = new GridPosition[fieldWidth, fieldHeight];
+      ref FieldComponent field = ref world.GetPool<FieldComponent>().Add(gridEntity);
+      field.Grid = new GridPositionComponent[fieldWidth, fieldHeight];
       
       return field;
     }

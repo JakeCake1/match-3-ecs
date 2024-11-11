@@ -2,7 +2,7 @@ using Views;
 
 namespace Components.Cell
 {
-  public struct CellViewRef
+  public struct CellViewRefComponent
   {
     public CellView CellView;
   }

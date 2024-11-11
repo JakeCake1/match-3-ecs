@@ -14,44 +14,44 @@ namespace Systems.Movement
 
     private EcsFilter _ecsFilter;
 
-    private EcsPool<SwapCombination> _swapCombinationPool;
+    private EcsPool<SwapCombinationComponent> _swapCombinationPool;
 
-    private EcsPool<GridPosition> _gridPositionPool;
-    private EcsPool<BusyCell> _busyCellPool;
-    private EcsPool<PlacedChip> _placedChipPool;
+    private EcsPool<GridPositionComponent> _gridPositionPool;
+    private EcsPool<BusyCellComponent> _busyCellPool;
+    private EcsPool<PlacedChipComponent> _placedChipPool;
     
-    private EcsPool<ChipInCheck> _inCheckPool;
+    private EcsPool<ChipInCheckComponent> _inCheckPool;
     
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _ecsFilter = _world.Filter<SwapCombination>().End();
+      _ecsFilter = _world.Filter<SwapCombinationComponent>().End();
 
-      _swapCombinationPool = _world.GetPool<SwapCombination>();
+      _swapCombinationPool = _world.GetPool<SwapCombinationComponent>();
 
-      _gridPositionPool = _world.GetPool<GridPosition>();
+      _gridPositionPool = _world.GetPool<GridPositionComponent>();
 
-      _inCheckPool = _world.GetPool<ChipInCheck>();
-      _busyCellPool = _world.GetPool<BusyCell>();
-      _placedChipPool = _world.GetPool<PlacedChip>();
+      _inCheckPool = _world.GetPool<ChipInCheckComponent>();
+      _busyCellPool = _world.GetPool<BusyCellComponent>();
+      _placedChipPool = _world.GetPool<PlacedChipComponent>();
     }
 
     public void Run(IEcsSystems systems)
     {
       foreach (int commandEntityIndex in _ecsFilter)
       {
-        ref SwapCombination swapCombination = ref _swapCombinationPool.Get(commandEntityIndex);
+        ref SwapCombinationComponent swapCombination = ref _swapCombinationPool.Get(commandEntityIndex);
         Swap(swapCombination.Pair.Item1, swapCombination.Pair.Item2, swapCombination.IsUserInitiated);
 
         _world.DelEntity(commandEntityIndex);
       }
     }
     
-    private void Swap(Chip firstChip, Chip secondChip, bool isUserInitiated)
+    private void Swap(ChipComponent firstChip, ChipComponent secondChip, bool isUserInitiated)
     {
-      ref GridPosition firstChipPosition = ref _gridPositionPool.Get(firstChip.ChipEntityIndex);
-      ref GridPosition secondChipPosition = ref _gridPositionPool.Get(secondChip.ChipEntityIndex);
+      ref GridPositionComponent firstChipPosition = ref _gridPositionPool.Get(firstChip.EntityIndex);
+      ref GridPositionComponent secondChipPosition = ref _gridPositionPool.Get(secondChip.EntityIndex);
       
       (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
       (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
@@ -62,21 +62,21 @@ namespace Systems.Movement
         MarkAsCheckNeeded(firstChip, secondChip);
     }
 
-    private void DetachChips(Chip firstChip, Chip secondChip)
+    private void DetachChips(ChipComponent firstChip, ChipComponent secondChip)
     {
       _busyCellPool.Del(firstChip.ParentCellEntityIndex);
       _busyCellPool.Del(secondChip.ParentCellEntityIndex);
 
-      _placedChipPool.Del(firstChip.ChipEntityIndex);
-      _placedChipPool.Del(secondChip.ChipEntityIndex);
+      _placedChipPool.Del(firstChip.EntityIndex);
+      _placedChipPool.Del(secondChip.EntityIndex);
     }
 
-    private void MarkAsCheckNeeded(Chip firstChip, Chip secondChip)
+    private void MarkAsCheckNeeded(ChipComponent firstChip, ChipComponent secondChip)
     {
-      ref ChipInCheck chipInCheckFirstChip = ref _inCheckPool.Add(firstChip.ChipEntityIndex);
+      ref ChipInCheckComponent chipInCheckFirstChip = ref _inCheckPool.Add(firstChip.EntityIndex);
       chipInCheckFirstChip.RelatedChip = secondChip;
       
-      ref ChipInCheck chipInCheckSecond = ref _inCheckPool.Add(secondChip.ChipEntityIndex);
+      ref ChipInCheckComponent chipInCheckSecond = ref _inCheckPool.Add(secondChip.EntityIndex);
       chipInCheckSecond.RelatedChip = firstChip;
     }
   }

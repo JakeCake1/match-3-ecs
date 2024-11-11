@@ -1,6 +1,6 @@
 namespace Components.Cell.Markers
 {
-  public struct BusyCell
+  public struct BusyCellComponent
   {
     public int ChipEntityIndex;
   }
