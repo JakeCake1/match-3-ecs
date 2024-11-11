@@ -1,5 +1,6 @@
 using Components.Command;
 using Components.Score;
+using Components.Score.Markers;
 using Leopotam.EcsLite;
 
 namespace Systems.Score
@@ -13,18 +14,22 @@ namespace Systems.Score
     private EcsFilter _addScoreCommandsFilter;
     
     private EcsPool<AddScoreCommand> _scoreCommandsPool;
+    private EcsPool<ShowAddedScoreCount> _showAddedScoreViewPool;
+    
     private EcsPool<ScoreCount> _scoreCountPool;
-    private EcsPool<UpdateScoreView> _updateScoreViewPool;
+    private EcsPool<UpdateScore> _updateScoreViewPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
       _addScoreCommandsFilter = _world.Filter<AddScoreCommand>().End();
-      
+
       _scoreCommandsPool = _world.GetPool<AddScoreCommand>();
+      _showAddedScoreViewPool = _world.GetPool<ShowAddedScoreCount>();
+
       _scoreCountPool = _world.GetPool<ScoreCount>();
-      _updateScoreViewPool = _world.GetPool<UpdateScoreView>();
+      _updateScoreViewPool = _world.GetPool<UpdateScore>();
     }
 
     public void Run(IEcsSystems systems)
@@ -38,9 +43,18 @@ namespace Systems.Score
       
         if(!_updateScoreViewPool.Has(scoreCount.CounterEntityIndex))
           _updateScoreViewPool.Add(scoreCount.CounterEntityIndex);
-          
+
+        CreateAddScoreViewEntity(addScoreCommand);
+
         _world.DelEntity(commandEntityIndex);
       }
+    }
+
+    private void CreateAddScoreViewEntity(AddScoreCommand addScoreCommand)
+    {
+      int addScoreViewEntityIndex = _world.NewEntity();
+      ref ShowAddedScoreCount showAddedScoreCount = ref _showAddedScoreViewPool.Add(addScoreViewEntityIndex);
+      showAddedScoreCount.AddedScore = ScoreModifier * addScoreCommand.ScoreCount;
     }
   }
 }

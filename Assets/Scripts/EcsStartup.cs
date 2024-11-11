@@ -24,6 +24,7 @@ internal sealed class EcsStartup : MonoBehaviour
   private CellView _cellViewPrefab;
   private ChipView _chipViewPrefab;
   private ScoreView _scoreViewPrefab;
+  private AddScoreView _addScoreViewPrefab;
 
   private FieldData _fieldData;
 
@@ -34,8 +35,10 @@ internal sealed class EcsStartup : MonoBehaviour
 
   [Inject]
   public void Construct(CellView cellViewPrefab, FieldData fieldData, Camera camera,
-    CameraData cameraData, ChipInjectorsData chipInjectorsData, ChipView chipViewPrefab, ScoreView scoreViewPrefab)
+    CameraData cameraData, ChipInjectorsData chipInjectorsData, ChipView chipViewPrefab,
+    ScoreView scoreViewPrefab, AddScoreView addScoreViewPrefab)
   {
+    _addScoreViewPrefab = addScoreViewPrefab;
     _scoreViewPrefab = scoreViewPrefab;
     _chipViewPrefab = chipViewPrefab;
     _chipInjectorsData = chipInjectorsData;
@@ -75,6 +78,8 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new ScoreCountSystem())
       .Add(new CreateScoreViewSystem(_scoreViewPrefab))
       .Add(new CreateAddScoreSystem())
+      .Add(new CreateAddScoreViewSystem(_addScoreViewPrefab))
+      
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif

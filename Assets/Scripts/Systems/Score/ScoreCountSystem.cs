@@ -1,4 +1,6 @@
 using Components.Score;
+using Components.Score.Markers;
+using Components.Score.View;
 using Leopotam.EcsLite;
 
 namespace Systems.Score
@@ -9,7 +11,7 @@ namespace Systems.Score
 
     private EcsFilter _viewNeedUpdateFilter;
     
-    private EcsPool<UpdateScoreView> _updatePool;
+    private EcsPool<UpdateScore> _updatePool;
     private EcsPool<ScoreCountViewRef> _scoreCountViewPool;
     private EcsPool<ScoreCount> _scoreCountPool;
 
@@ -19,10 +21,10 @@ namespace Systems.Score
     {
       _world = systems.GetWorld();
 
-      _viewNeedUpdateFilter = _world.Filter<ScoreCountViewRef>().Inc<UpdateScoreView>().End();
+      _viewNeedUpdateFilter = _world.Filter<ScoreCountViewRef>().Inc<UpdateScore>().End();
       
       _scoreCountViewPool = _world.GetPool<ScoreCountViewRef>();
-      _updatePool = _world.GetPool<UpdateScoreView>();
+      _updatePool = _world.GetPool<UpdateScore>();
       _scoreCountPool = _world.GetPool<ScoreCount>();
 
       CreateScoreCounter(_world);
@@ -43,13 +45,13 @@ namespace Systems.Score
 
     public void Run(IEcsSystems systems)
     {
-      foreach (int i in _viewNeedUpdateFilter)
+      foreach (int scoreViewEntityIndex in _viewNeedUpdateFilter)
       { 
-        ref ScoreCountViewRef scoreCountViewRef = ref _scoreCountViewPool.Get(i);
+        ref ScoreCountViewRef scoreCountViewRef = ref _scoreCountViewPool.Get(scoreViewEntityIndex);
         
         scoreCountViewRef.ScoreView.SetCount(_scoreCountPool.Get(_playerScoreEntity).PlayerScore);
         
-        _updatePool.Del(i);
+        _updatePool.Del(scoreViewEntityIndex);
       }
     }
   }

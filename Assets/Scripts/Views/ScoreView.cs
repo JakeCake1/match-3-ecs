@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -7,7 +8,10 @@ namespace Views
   {
     [SerializeField] private TextMeshProUGUI _scoreText;
 
+    private void Awake() => 
+      SetCount(0);
+
     public void SetCount(int score) => 
-      _scoreText.text = score.ToString();
+      _scoreText.text = $"Score: {score}";
   }
 }

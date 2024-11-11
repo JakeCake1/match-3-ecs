@@ -1,4 +1,6 @@
 using Components.Score;
+using Components.Score.Markers;
+using Components.Score.View;
 using Leopotam.EcsLite;
 using UnityEngine;
 using Views;

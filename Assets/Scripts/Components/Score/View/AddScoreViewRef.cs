@@ -1,6 +1,6 @@
 using Views;
 
-namespace Components.Score
+namespace Components.Score.View
 {
   public struct AddScoreViewRef
   {

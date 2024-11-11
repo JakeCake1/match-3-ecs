@@ -15,6 +15,7 @@ namespace Services
     [SerializeField] private ChipInjectorsData _chipInjectorsData;
     [SerializeField] private ChipView _chipViewPrefab;
     [SerializeField] private ScoreView _scoreViewPrefab;
+    [SerializeField] private AddScoreView _addScoreViewPrefab;
     
     protected override void Configure(IContainerBuilder builder)
     {      
@@ -25,6 +26,7 @@ namespace Services
       builder.RegisterInstance(_chipInjectorsData);
       builder.RegisterInstance(_chipViewPrefab);
       builder.RegisterInstance(_scoreViewPrefab);
+      builder.RegisterInstance(_addScoreViewPrefab);
     }
   }
 }
