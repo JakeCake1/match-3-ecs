@@ -1,4 +1,3 @@
-using Components;
 using Components.Cell;
 using Components.Common;
 using Data;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace Systems.Camera
 {
-  public class CameraResizeSystem : IEcsInitSystem
+  public sealed class CameraResizeSystem : IEcsInitSystem
   {
     private readonly UnityEngine.Camera _camera;
     private readonly CameraData _cameraData;
@@ -23,14 +22,13 @@ namespace Systems.Camera
       EcsWorld world = systems.GetWorld();
       
       var filter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Inc<CellViewRefComponent>().End();
+      
       var cellViewPool = world.GetPool<CellViewRefComponent>();
 
       DefineGridCorners(filter, cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner);
 
       SetCameraCenter(maxGridCorner, minGridCorner);
       SetCameraSize(maxGridCorner, minGridCorner);
-
-      Debug.Log($"Init: {GetType().Name}");
     }
 
     private void DefineGridCorners(EcsFilter filter, EcsPool<CellViewRefComponent> cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)
