@@ -11,12 +11,12 @@ namespace Systems.Field_State
   {
     private EcsWorld _world;
 
-    private FieldComponent _field;
+    private EcsFilter _chipFilter;
 
     private EcsPool<ChipComponent> _chipsPool;
     private EcsPool<GridPositionComponent> _gridPositionsPool;
 
-    private EcsFilter _chipFilter;
+    private FieldComponent _field;
 
     public void Init(IEcsSystems systems)
     {
@@ -33,11 +33,42 @@ namespace Systems.Field_State
 
     public void Run(IEcsSystems systems)
     {
-      ChipComponent[,] chips = CreateChipsGrid();
+      ChipComponent[,] chips = CreateChipsGrid();  //TODO Кэшировать фишки
       List<Queue<ChipComponent>> combinations = FindLineCombinations(chips);
       AddCombinationsToMergeBuffer(combinations);
     }
 
+    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ChipComponent[,] chips);
+    
+    protected void CheckChipForSequence(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
+    {
+      if (chipsCombo.Count == 0)
+        AddChipToQueue(chips, chipsCombo, x, y);
+      else
+      {
+        if (chipsCombo.Peek().Type != chips[x, y].Type) 
+          AddQueueToCombinationList(chipsCombo, combinations);
+
+        AddChipToQueue(chips, chipsCombo, x, y);
+      }
+    }
+
+    protected void AddQueueToCombinationList(Queue<ChipComponent> chipsCombo, List<Queue<ChipComponent>> combinations)
+    {
+      if (chipsCombo.Count >= 3) 
+        combinations.Add(new Queue<ChipComponent>(chipsCombo));
+
+      chipsCombo.Clear();
+    }
+
+    private void AddChipToQueue(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
+    {
+      if(chips[x, y].EntityIndex == 0)
+        return;
+      
+      chipsCombo.Enqueue(chips[x, y]);
+    }
+    
     private ChipComponent[,] CreateChipsGrid()
     {
       ChipComponent[,] chips = new ChipComponent[_field.Grid.GetLength(0), _field.Grid.GetLength(1)];
@@ -50,8 +81,6 @@ namespace Systems.Field_State
 
       return chips;
     }
-
-    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ChipComponent[,] chips);
 
     private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
     {
