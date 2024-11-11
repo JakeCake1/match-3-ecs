@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Data
@@ -6,6 +5,8 @@ namespace Data
   [CreateAssetMenu(menuName = "Field/Create Field Data", fileName = "Field Data")]
   public class FieldData : ScriptableObject
   {
+    private const int MaxChipsCount = 7;
+    
     public Vector2 Offset;
     public Vector2Int Size;
     
@@ -13,8 +14,8 @@ namespace Data
 
     private void OnValidate()
     {
-      if (ChipsCount > 7)
-        ChipsCount = 7;
+      if (ChipsCount > MaxChipsCount)
+        ChipsCount = MaxChipsCount;
     }
   }
 }
