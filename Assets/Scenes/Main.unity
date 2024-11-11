@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tapThreshold: 0.2
-  swipeThreshold: 20
+  swipeThreshold: 10
   referenceDpi: 200
   guiLayers:
     serializedVersion: 2
