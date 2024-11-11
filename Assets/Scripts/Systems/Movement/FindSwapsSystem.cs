@@ -10,7 +10,7 @@ using Views;
 
 namespace Systems.Movement
 {
-  public class FindSwapsSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class FindSwapsSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
 
