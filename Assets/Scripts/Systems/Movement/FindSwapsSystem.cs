@@ -61,6 +61,9 @@ namespace Systems.Movement
 
     private void TryToSwap(SwapCommand swapCommand)
     {
+      if(swapCommand.Ray.Item2.sqrMagnitude > 1)
+        return;
+      
       bool firstChipFound = FindFirstChipForSwap(swapCommand, out Chip firstChip, out GridPosition gridPosition);
       
       if (!firstChipFound) 
