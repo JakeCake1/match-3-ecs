@@ -1,4 +1,4 @@
-namespace Components.Chips
+namespace Components.Injector
 {
   public struct ChipsInjector
   { }

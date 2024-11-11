@@ -1,4 +1,4 @@
-namespace Components.Chips
+namespace Components.Chips.Markers
 {
   public struct ChipForDestroy
   { }

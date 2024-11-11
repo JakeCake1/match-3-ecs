@@ -1,4 +1,4 @@
-namespace Components.Cell
+namespace Components.Cell.Markers
 {
   public struct BusyCell
   {

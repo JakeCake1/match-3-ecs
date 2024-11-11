@@ -16,13 +16,13 @@ namespace Systems.Field_State
         for (int x = 0; x < chips.GetLength(0); x++)
         {
           if (chipsCombo.Count == 0)
-            chipsCombo.Enqueue(chips[x, y]);
+            AddChipToQueue(chips, chipsCombo, x, y);
           else
           {
             if (chipsCombo.Peek().Type != chips[x, y].Type) 
               AddQueueToCombinationList(chipsCombo);
 
-            chipsCombo.Enqueue(chips[x, y]);
+            AddChipToQueue(chips, chipsCombo, x, y);
           }
         }
         
@@ -38,6 +38,14 @@ namespace Systems.Field_State
 
         chipsCombo.Clear();
       }
+    }
+    
+    private void AddChipToQueue(Chip[,] chips, Queue<Chip> chipsCombo, int x, int y)
+    {
+      if(chips[x, y].ChipEntityIndex == 0)
+        return;
+      
+      chipsCombo.Enqueue(chips[x, y]);
     }
   }
 }
