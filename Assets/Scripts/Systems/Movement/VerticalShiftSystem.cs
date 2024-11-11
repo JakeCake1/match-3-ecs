@@ -1,4 +1,3 @@
-using System.Text;
 using Components.Cell;
 using Components.Cell.Markers;
 using Components.Chips;
@@ -10,16 +9,16 @@ using UnityEngine;
 
 namespace Systems.Movement
 {
-  public class VerticalShiftSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class VerticalShiftSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
 
-    private EcsFilter _filterChips;
-    private EcsFilter _filterNotBusyCells;
+    private EcsFilter _chipsWithPositionsFilter;
+    private EcsFilter _notBusyCellsFilter;
 
-    private EcsPool<GridPositionComponent> _positionsPool;
-    private EcsPool<BusyCellComponent> _busyCellPool;
-    private EcsPool<PlacedChipComponent> _placedChipPool;
+    private EcsPool<GridPositionComponent> _gridPositionsPool;
+    private EcsPool<BusyCellComponent> _busyCellsPool;
+    private EcsPool<PlacedChipComponent> _placedChipsPool;
     private EcsPool<FieldComponent> _fieldPool;
 
     private FieldComponent _field;
@@ -28,13 +27,12 @@ namespace Systems.Movement
     {
       _world = systems.GetWorld();
 
-      _filterChips = _world.Filter<ChipComponent>().Inc<GridPositionComponent>().End();
-      _filterNotBusyCells = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
+      _chipsWithPositionsFilter = _world.Filter<ChipComponent>().Inc<GridPositionComponent>().End();
+      _notBusyCellsFilter = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
 
-      _positionsPool = _world.GetPool<GridPositionComponent>();
-      _busyCellPool = _world.GetPool<BusyCellComponent>();
-      _placedChipPool = _world.GetPool<PlacedChipComponent>();
-      
+      _gridPositionsPool = _world.GetPool<GridPositionComponent>();
+      _busyCellsPool = _world.GetPool<BusyCellComponent>();
+      _placedChipsPool = _world.GetPool<PlacedChipComponent>();
       _fieldPool = _world.GetPool<FieldComponent>();
 
       _field = _fieldPool.GetRawDenseItems()[1];
@@ -42,51 +40,42 @@ namespace Systems.Movement
 
     public void Run(IEcsSystems systems)
     {
-      if(_filterNotBusyCells.GetEntitiesCount() == 0)
+      if(AllCellsAreBusy())
         return;
       
-      foreach (int cellEntity in _filterNotBusyCells)
+      foreach (int cellEntityIndex in _notBusyCellsFilter)
       {     
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine("Free chips at this turn:");
-        
-        ref GridPositionComponent cellPosition = ref _positionsPool.Get(cellEntity);
-        
+        ref GridPositionComponent cellPosition = ref _gridPositionsPool.Get(cellEntityIndex);
 
         for (int y = cellPosition.Position.y; y < _field.Grid.GetLength(1); y++)
         {
-          FreeChipIfItsFreeCellBelow(cellPosition, stringBuilder);   
-          int cellEntityIndex = _field.Grid[cellPosition.Position.x, y].EntityIndex;
-          
-          FreeCell(cellEntityIndex, cellPosition, stringBuilder, y);
+          FreeChipIfItsFreeCellBelow(cellPosition);   
+          FreeCell(_field.Grid[cellPosition.Position.x, y].EntityIndex);
         }
-        
-        Debug.Log($"Run: {GetType().Name}\n{stringBuilder}");
       }
+
+      bool AllCellsAreBusy() => 
+        _notBusyCellsFilter.GetEntitiesCount() == 0;
     }
 
-    private void FreeChipIfItsFreeCellBelow(GridPositionComponent cellPosition, StringBuilder stringBuilder)
+    private void FreeChipIfItsFreeCellBelow(GridPositionComponent cellPosition)
     {
-      foreach (int chipEntity in _filterChips)
+      foreach (int chipEntityIndex in _chipsWithPositionsFilter)
       {
-        Vector2Int chipPosition = _positionsPool.Get(chipEntity).Position;
+        Vector2Int chipPosition = _gridPositionsPool.Get(chipEntityIndex).Position;
 
-        if (chipPosition.x == cellPosition.Position.x && chipPosition.y > cellPosition.Position.y && _placedChipPool.Has(chipEntity))
+        if (chipPosition.x == cellPosition.Position.x && chipPosition.y > cellPosition.Position.y && _placedChipsPool.Has(chipEntityIndex))
         {     
-          stringBuilder.AppendLine($"Chip Index: {chipEntity} {chipPosition}");
-          _placedChipPool.Del(chipEntity);
+          _placedChipsPool.Del(chipEntityIndex);
           break;
         }
       }
     }
 
-    private void FreeCell(int cellEntityIndex, GridPositionComponent cellPosition, StringBuilder stringBuilder, int y)
+    private void FreeCell(int cellEntityIndex)
     {
-      if (_busyCellPool.Has(cellEntityIndex))
-      {
-        _busyCellPool.Del(cellEntityIndex);
-        stringBuilder.AppendLine($"Cell Index: {cellEntityIndex} {_field.Grid[cellPosition.Position.x, y].Position}");
-      }
+      if (_busyCellsPool.Has(cellEntityIndex)) 
+        _busyCellsPool.Del(cellEntityIndex);
     }
   }
 }
