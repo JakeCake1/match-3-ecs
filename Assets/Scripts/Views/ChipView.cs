@@ -20,11 +20,11 @@ namespace Views
     
     private Vector2 _fieldDataOffset;
     
-    public int Entity { get; private set; }
+    public int EntityIndex { get; private set; }
 
     public void Construct(int entity, Vector2 fieldDataOffset)
     {
-      Entity = entity;
+      EntityIndex = entity;
       _fieldDataOffset = fieldDataOffset;
     }
 

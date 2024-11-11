@@ -36,7 +36,7 @@ namespace Systems.Control
         {
           var chipView = raycastHit2D.collider.GetComponent<ChipView>();
           if (chipView) 
-            _chipsForDestroyPool.Add(chipView.Entity);
+            _chipsForDestroyPool.Add(chipView.EntityIndex);
         }
         
         Debug.Log($"Run: {GetType().Name}");
