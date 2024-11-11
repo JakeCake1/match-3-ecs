@@ -1,4 +1,3 @@
-using Components;
 using Components.Cell;
 using Components.Common;
 using Data;
@@ -8,10 +7,17 @@ using Views;
 
 namespace Systems.Grid
 {
-  public class CreateCellViewSystem : IEcsInitSystem
+  public sealed class CreateCellViewSystem : IEcsInitSystem, IEcsDestroySystem
   {
     private readonly CellView _cellViewPrefab;
     private readonly FieldData _fieldData;
+    
+    private EcsFilter _cellsWithoutViewsFilter;
+
+    private EcsPool<CellViewRefComponent> _cellViewRefsPool;
+    private EcsPool<GridPositionComponent> _gridPositionsPool;
+    
+    private GameObject _parentObject;
 
     public CreateCellViewSystem(CellView cellViewPrefab, FieldData fieldData)
     {
@@ -21,27 +27,33 @@ namespace Systems.Grid
 
     public void Init(IEcsSystems systems)
     {
-      var parentObject = new GameObject("Grid");
-
       EcsWorld world = systems.GetWorld();
 
-      var filter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<CellViewRefComponent>().End();
+      _cellsWithoutViewsFilter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<CellViewRefComponent>().End();
 
-      var cellPool = world.GetPool<CellViewRefComponent>();
-      var positionPool = world.GetPool<GridPositionComponent>();
+      _cellViewRefsPool = world.GetPool<CellViewRefComponent>();
+      _gridPositionsPool = world.GetPool<GridPositionComponent>();
 
-      foreach (int entity in filter)
+      CreateCellViews();
+    }
+
+    private void CreateCellViews()
+    {
+      _parentObject = new GameObject("Grid");
+
+      foreach (int cellEntityIndex in _cellsWithoutViewsFilter)
       {
-        ref CellViewRefComponent cellViewRef = ref cellPool.Add(entity);
-        ref GridPositionComponent gridPosition = ref positionPool.Get(entity);
+        ref CellViewRefComponent cellViewRef = ref _cellViewRefsPool.Add(cellEntityIndex);
+        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(cellEntityIndex);
 
-        var cellView = Object.Instantiate(_cellViewPrefab, parentObject.transform).GetComponent<CellView>();
+        var cellView = Object.Instantiate(_cellViewPrefab, _parentObject.transform).GetComponent<CellView>();
         cellView.transform.position = gridPosition.Position + _fieldData.Offset * gridPosition.Position;
 
         cellViewRef.CellView = cellView;
       }
-
-      Debug.Log($"Init: {GetType().Name}");
     }
+
+    public void Destroy(IEcsSystems systems) => 
+      Object.Destroy(_parentObject);
   }
 }
