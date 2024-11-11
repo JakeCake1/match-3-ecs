@@ -8,6 +8,7 @@ using Systems.Field_State;
 using Systems.Grid;
 using Systems.Injector;
 using Systems.Movement;
+using Systems.Score;
 using UnityEngine;
 using VContainer;
 using Views;
@@ -67,6 +68,8 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new ReturnNotMergedSystem())
       
       .Add(new ControlSystem())
+      
+      .Add(new AddScoreSystem())
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif

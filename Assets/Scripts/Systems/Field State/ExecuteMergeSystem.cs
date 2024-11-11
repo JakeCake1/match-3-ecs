@@ -43,12 +43,14 @@ namespace Systems.Field_State
 
         Debug.Log(stringBuilder.ToString());
 
+        AddScore(mergeCommand.Chips.Count);
+        
         foreach (Chip mergeCommandChip in mergeCommand.Chips)
         {
           RemoveCheckComponent(mergeCommandChip);
           MarkChipAsReadyForDestroy(mergeCommandChip);
         }
-
+        
         _world.DelEntity(commandEntityIndex);
       }
     }
@@ -70,6 +72,15 @@ namespace Systems.Field_State
 
         _chipInCheckPool.Del(mergeCommandChip.ChipEntityIndex);
       }
+    }
+
+    private void AddScore(int chipsCount)
+    {
+      int addScoreEntityIndex = _world.NewEntity();
+      ref AddScoreCommand addScoreCommand = ref _world.GetPool<AddScoreCommand>().Add(addScoreEntityIndex);
+      
+      addScoreCommand.CommandEntityIndex = addScoreEntityIndex;
+      addScoreCommand.ScoreCount = chipsCount;
     }
   }
 }
