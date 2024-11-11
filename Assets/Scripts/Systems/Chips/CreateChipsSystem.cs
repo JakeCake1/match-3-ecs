@@ -16,12 +16,12 @@ namespace Systems.Chips
     
     private EcsWorld _world;
     
-    private EcsFilter _filterChipsInjector;
-    private EcsFilter _filterCell;
+    private EcsFilter _readyInjectorsFilter;
+    private EcsFilter _notBusyCellsFilter;
     
     private EcsPool<ChipComponent> _chipsPool;
-    private EcsPool<GridPositionComponent> _gridPositionPool;
-    private EcsPool<ReadyInjectorComponent> _chipsInjectorPool;
+    private EcsPool<GridPositionComponent> _gridPositionsPool;
+    private EcsPool<ReadyInjectorComponent> _readyInjectorsPool;
 
     public CreateChipsSystem(FieldData fieldData) => 
       _fieldData = fieldData;
@@ -30,32 +30,38 @@ namespace Systems.Chips
     {
       _world = systems.GetWorld();
      
-      _filterChipsInjector = _world.Filter<ChipsInjectorComponent>().Inc<ReadyInjectorComponent>().End();
-      _filterCell = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
+      _readyInjectorsFilter = _world.Filter<ChipsInjectorComponent>().Inc<ReadyInjectorComponent>().End();
+      _notBusyCellsFilter = _world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<BusyCellComponent>().End();
       
       _chipsPool = _world.GetPool<ChipComponent>();
-      
-      _gridPositionPool = _world.GetPool<GridPositionComponent>();
-      _chipsInjectorPool = _world.GetPool<ReadyInjectorComponent>();
+      _gridPositionsPool = _world.GetPool<GridPositionComponent>();
+      _readyInjectorsPool = _world.GetPool<ReadyInjectorComponent>();
     }
 
     public void Run(IEcsSystems systems)
     {
-      if(_filterCell.GetEntitiesCount() == 0)
+      if(AllCellsAreBusy())
         return;
       
-      foreach (int injectorEntityIndex in _filterChipsInjector)
+      foreach (int injectorEntityIndex in _readyInjectorsFilter)
       {
-        int chipEntity = _world.NewEntity();
-
-        ref ChipComponent chip = ref _chipsPool.Add(chipEntity);
-        ref GridPositionComponent chipPosition = ref _gridPositionPool.Add(chipEntity);
-
-        chip.Type = Random.Range(0, _fieldData.ChipsCount);
-        chipPosition.Position = _gridPositionPool.Get(injectorEntityIndex).Position;
-
-        _chipsInjectorPool.Del(injectorEntityIndex);
+        CreateChip(injectorEntityIndex);
+        _readyInjectorsPool.Del(injectorEntityIndex);
       }
+
+      bool AllCellsAreBusy() => 
+        _notBusyCellsFilter.GetEntitiesCount() == 0;
+    }
+
+    private void CreateChip(int injectorEntityIndex)
+    {
+      int chipEntityIndex = _world.NewEntity();
+
+      ref ChipComponent chip = ref _chipsPool.Add(chipEntityIndex);
+      ref GridPositionComponent chipPosition = ref _gridPositionsPool.Add(chipEntityIndex);
+
+      chip.Type = Random.Range(0, _fieldData.ChipsCount);
+      chipPosition.Position = _gridPositionsPool.Get(injectorEntityIndex).Position;
     }
   }
 }
