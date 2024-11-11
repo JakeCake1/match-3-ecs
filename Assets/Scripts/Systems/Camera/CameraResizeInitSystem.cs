@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Systems.Camera
 {
-  public sealed class CameraResizeSystem : IEcsInitSystem
+  public sealed class CameraResizeInitSystem : IEcsInitSystem
   {
     private readonly UnityEngine.Camera _camera;
     private readonly CameraData _cameraData;
 
-    public CameraResizeSystem(UnityEngine.Camera camera, CameraData cameraData)
+    public CameraResizeInitSystem(UnityEngine.Camera camera, CameraData cameraData)
     {
       _cameraData = cameraData;
       _camera = camera;
@@ -21,27 +21,26 @@ namespace Systems.Camera
     {
       EcsWorld world = systems.GetWorld();
       
-      var filter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Inc<CellViewRefComponent>().End();
-      
-      var cellViewPool = world.GetPool<CellViewRefComponent>();
+      var cellsViewsFilter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Inc<CellViewRefComponent>().End();
+      var cellViewsPool = world.GetPool<CellViewRefComponent>();
 
-      DefineGridCorners(filter, cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner);
+      DefineGridCorners(cellsViewsFilter, cellViewsPool, out Vector2 minGridCorner, out Vector2 maxGridCorner);
 
       SetCameraCenter(maxGridCorner, minGridCorner);
       SetCameraSize(maxGridCorner, minGridCorner);
     }
 
-    private void DefineGridCorners(EcsFilter filter, EcsPool<CellViewRefComponent> cellViewPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)
+    private void DefineGridCorners(EcsFilter cellsViewsFilter, EcsPool<CellViewRefComponent> cellViewsPool, out Vector2 minGridCorner, out Vector2 maxGridCorner)
     {
       minGridCorner = Vector2.positiveInfinity;
       maxGridCorner = Vector2.negativeInfinity;
       
-      foreach (int entityIndex in filter)
+      foreach (int cellEntityIndex in cellsViewsFilter)
       {
-        ref CellViewRefComponent cellViewRef = ref cellViewPool.Get(entityIndex);
+        ref CellViewRefComponent cellViewRef = ref cellViewsPool.Get(cellEntityIndex);
 
-        maxGridCorner = Vector2.Max( cellViewRef.CellView.transform.position, maxGridCorner);
         minGridCorner = Vector2.Min( cellViewRef.CellView.transform.position, minGridCorner);
+        maxGridCorner = Vector2.Max( cellViewRef.CellView.transform.position, maxGridCorner);
       }
     }
 
