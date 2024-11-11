@@ -60,6 +60,7 @@ namespace Systems.Field_State
         int mergeCommandEntity = _world.NewEntity();
         ref MergeCommand mergeCommand = ref _world.GetPool<MergeCommand>().Add(mergeCommandEntity);
         
+        mergeCommand.CommandEntityIndex = mergeCommandEntity;
         mergeCommand.Chips = combination;
       }
 

@@ -62,6 +62,7 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new VerticalShiftSystem())
       .Add(new VerticalCheckSystem())
       .Add(new HorizontalCheckSystem())
+      .Add(new CombineCommandsSystem())
       .Add(new ExecuteMergeSystem())     
       .Add(new ReturnNotMergedSystem())
       
