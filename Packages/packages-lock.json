@@ -7,12 +7,26 @@
       "dependencies": {},
       "hash": "5053141d7d663c6b1855c8409ac93dfac807b239"
     },
+    "com.leopotam.ecslite.di": {
+      "version": "https://github.com/Leopotam/ecslite-di.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "99347c110c316a54c1cf2f0b268950f02612662d"
+    },
     "com.leopotam.ecslite.unityeditor": {
       "version": "https://github.com/Leopotam/ecslite-unityeditor.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "6f308a6e1ce58f53ae21defa9bb54b80d03f1135"
+    },
+    "com.nenuacho.ecslite.interval-systems": {
+      "version": "https://github.com/nenuacho/ecslite-interval-systems.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "108fd330cc5da2a569a5fda3825ef791576b4350"
     },
     "com.unity.2d.animation": {
       "version": "9.1.0",
@@ -291,6 +305,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "jp.hadashikick.vcontainer": {
+      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.4",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4f099507f7c13bbb8ba00f4a91c78feeccc778ba"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
