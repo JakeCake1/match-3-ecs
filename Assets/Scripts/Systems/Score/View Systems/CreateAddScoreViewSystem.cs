@@ -6,11 +6,11 @@ using Views;
 
 namespace Systems.Score.View_Systems
 {
-  public class CreateAddScoreViewSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class CreateAddScoreViewSystem : IEcsInitSystem, IEcsRunSystem
   {
-    private EcsWorld _world;
-    
     private readonly AddScoreView _addScoreViewPrefab;
+    
+    private EcsWorld _world;
 
     private EcsFilter _addedScoresFilter;
 
@@ -46,11 +46,15 @@ namespace Systems.Score.View_Systems
     {
       foreach (int addedScoreEntityIndex in _addedScoresFilter)
       {
-        ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
-        addScoreViewRef.AddScoreView.SetCount(_addedScoresPool.Get(addedScoreEntityIndex).AddedScore);
-        
+        UpdateAddScoreView(addedScoreEntityIndex);
         _world.DelEntity(addedScoreEntityIndex);
       }
+    }
+
+    private void UpdateAddScoreView(int addedScoreEntityIndex)
+    {
+      ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
+      addScoreViewRef.AddScoreView.SetCount(_addedScoresPool.Get(addedScoreEntityIndex).AddedScore);
     }
   }
 }
