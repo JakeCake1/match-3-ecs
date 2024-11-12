@@ -6,28 +6,26 @@ using UnityEngine;
 
 namespace Systems.Control
 {
-  public class ControlSystem : IEcsInitSystem, IEcsDestroySystem
+  public sealed class ControlSystem : IEcsInitSystem, IEcsDestroySystem
   {
     private EcsWorld _world;
-    private EcsPool<SwapCommandComponent> _commandPool;
+    private EcsPool<SwapCommandComponent> _swapCommandsPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
-      _commandPool = _world.GetPool<SwapCommandComponent>();
+      _swapCommandsPool = _world.GetPool<SwapCommandComponent>();
 
       LeanTouch.OnFingerSwipe += HandleFingerSwipe;
     }
 
-    public void Destroy(IEcsSystems systems)
-    {
+    public void Destroy(IEcsSystems systems) => 
       LeanTouch.OnFingerSwipe -= HandleFingerSwipe;
-    }
 
     void HandleFingerSwipe(LeanFinger finger)
     {
       int commandEntity = _world.NewEntity();
-      ref SwapCommandComponent swapCommand = ref _commandPool.Add(commandEntity);
+      ref SwapCommandComponent swapCommand = ref _swapCommandsPool.Add(commandEntity);
 
       swapCommand.Ray = (finger.StartScreenPosition, GetDirection(finger));
     }
