@@ -76,7 +76,7 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new ControlSystem())
       
       .Add(new ScoreCountSystem())
-      .Add(new CreateScoreViewSystem(_scoreViewPrefab))
+      .Add(new CreateScoreViewInitSystem(_scoreViewPrefab))
       .Add(new CreateAddScoreSystem())
       .Add(new CreateAddScoreViewSystem(_addScoreViewPrefab))
       
