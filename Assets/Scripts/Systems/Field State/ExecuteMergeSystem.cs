@@ -1,49 +1,38 @@
-using System.Text;
 using Components.Chips;
 using Components.Chips.Markers;
 using Components.Command;
 using Components.Score;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Systems.Field_State
 {
-  public class ExecuteMergeSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class ExecuteMergeSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
 
-    private EcsFilter _ecsFilter;
+    private EcsFilter _mergeCommandsFilter;
 
-    private EcsPool<MergeCommandComponent> _mergeCommandPool;
-    private EcsPool<ChipForDestroyComponent> _chipForDestroyPool;
-    private EcsPool<ChipInCheckComponent> _chipInCheckPool;
+    private EcsPool<MergeCommandComponent> _mergeCommandsPool;
+    private EcsPool<ChipForDestroyComponent> _chipsForDestroyPool;
+    private EcsPool<ChipInCheckComponent> _chipsInCheckProcessPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _ecsFilter = _world.Filter<MergeCommandComponent>().End();
+      _mergeCommandsFilter = _world.Filter<MergeCommandComponent>().End();
 
-      _mergeCommandPool = _world.GetPool<MergeCommandComponent>();
-      _chipForDestroyPool = _world.GetPool<ChipForDestroyComponent>();
-      _chipInCheckPool = _world.GetPool<ChipInCheckComponent>();
+      _mergeCommandsPool = _world.GetPool<MergeCommandComponent>();
+      _chipsForDestroyPool = _world.GetPool<ChipForDestroyComponent>();
+      _chipsInCheckProcessPool = _world.GetPool<ChipInCheckComponent>();
     }
 
     public void Run(IEcsSystems systems)
     {
-      foreach (int commandEntityIndex in _ecsFilter)
+      foreach (int commandEntityIndex in _mergeCommandsFilter)
       {
-        ref MergeCommandComponent mergeCommand = ref _mergeCommandPool.Get(commandEntityIndex);
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.AppendLine($"ExecuteMergeSystem: command index {mergeCommand.CommandEntityIndex} destroy {mergeCommand.Chips.Count} chips");
-     
-        foreach (ChipComponent chip in mergeCommand.Chips) 
-          stringBuilder.AppendLine($"Chip: chip index {chip.EntityIndex} type {chip.Type}");
-
-        Debug.Log(stringBuilder.ToString());
-
+        ref MergeCommandComponent mergeCommand = ref _mergeCommandsPool.Get(commandEntityIndex);
+        
         AddScore(mergeCommand.Chips.Count);
         
         foreach (ChipComponent mergeCommandChip in mergeCommand.Chips)
@@ -58,20 +47,20 @@ namespace Systems.Field_State
 
     private void MarkChipAsReadyForDestroy(ChipComponent mergeCommandChip)
     {
-      if (!_chipForDestroyPool.Has(mergeCommandChip.EntityIndex))
-        _chipForDestroyPool.Add(mergeCommandChip.EntityIndex);
+      if (!_chipsForDestroyPool.Has(mergeCommandChip.EntityIndex))
+        _chipsForDestroyPool.Add(mergeCommandChip.EntityIndex);
     }
 
     private void RemoveCheckComponent(ChipComponent mergeCommandChip)
     {
-      if (_chipInCheckPool.Has(mergeCommandChip.EntityIndex))
+      if (_chipsInCheckProcessPool.Has(mergeCommandChip.EntityIndex))
       {
-        ref ChipInCheckComponent chipInCheck = ref _chipInCheckPool.Get(mergeCommandChip.EntityIndex);
+        ref ChipInCheckComponent chipInCheck = ref _chipsInCheckProcessPool.Get(mergeCommandChip.EntityIndex);
 
-        if (_chipInCheckPool.Has(chipInCheck.RelatedChip.EntityIndex))
-          _chipInCheckPool.Del(chipInCheck.RelatedChip.EntityIndex);
+        if (_chipsInCheckProcessPool.Has(chipInCheck.RelatedChip.EntityIndex))
+          _chipsInCheckProcessPool.Del(chipInCheck.RelatedChip.EntityIndex);
 
-        _chipInCheckPool.Del(mergeCommandChip.EntityIndex);
+        _chipsInCheckProcessPool.Del(mergeCommandChip.EntityIndex);
       }
     }
 
