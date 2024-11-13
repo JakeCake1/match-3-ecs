@@ -47,12 +47,18 @@ namespace Systems.Field_State
 
     private void MarkChipAsReadyForDestroy(ChipComponent mergeCommandChip)
     {
+      if (mergeCommandChip.EntityIndex == -1)
+        return;
+      
       if (!_chipsForDestroyPool.Has(mergeCommandChip.EntityIndex))
         _chipsForDestroyPool.Add(mergeCommandChip.EntityIndex);
     }
 
     private void RemoveCheckComponent(ChipComponent mergeCommandChip)
     {
+      if (mergeCommandChip.EntityIndex == -1)
+        return;
+      
       if (_chipsInCheckProcessPool.Has(mergeCommandChip.EntityIndex))
       {
         ref ChipInCheckComponent chipInCheck = ref _chipsInCheckProcessPool.Get(mergeCommandChip.EntityIndex);

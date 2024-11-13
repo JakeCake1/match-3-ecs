@@ -19,9 +19,9 @@ namespace Systems.Movement
     private EcsPool<GridPositionComponent> _gridPositionsPool;
     private EcsPool<BusyCellComponent> _busyCellsPool;
     private EcsPool<PlacedChipComponent> _placedChipsPool;
-    private EcsPool<FieldComponent> _fieldPool;
+    private EcsPool<CellFieldComponent> _fieldPool;
 
-    private FieldComponent _field;
+    private CellFieldComponent _cellField;
 
     public void Init(IEcsSystems systems)
     {
@@ -33,9 +33,9 @@ namespace Systems.Movement
       _gridPositionsPool = _world.GetPool<GridPositionComponent>();
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
       _placedChipsPool = _world.GetPool<PlacedChipComponent>();
-      _fieldPool = _world.GetPool<FieldComponent>();
+      _fieldPool = _world.GetPool<CellFieldComponent>();
 
-      _field = _fieldPool.GetRawDenseItems()[1];
+      _cellField = _fieldPool.GetRawDenseItems()[1];
     }
 
     public void Run(IEcsSystems systems)
@@ -47,10 +47,10 @@ namespace Systems.Movement
       {     
         ref GridPositionComponent cellPosition = ref _gridPositionsPool.Get(cellEntityIndex);
 
-        for (int y = cellPosition.Position.y; y < _field.Grid.GetLength(1); y++)
+        for (int y = cellPosition.Position.y; y < _cellField.Grid.GetLength(1); y++)
         {
           FreeChipIfItsFreeCellBelow(cellPosition);   
-          FreeCell(_field.Grid[cellPosition.Position.x, y].EntityIndex);
+          FreeCell(_cellField.Grid[cellPosition.Position.x, y].EntityIndex);
         }
       }
 

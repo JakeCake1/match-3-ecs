@@ -22,7 +22,7 @@ namespace Systems.Movement
     private EcsPool<GridPositionComponent> _gridPositionsPool;
     private EcsPool<BusyCellComponent> _busyCellsPool;
 
-    private FieldComponent _field;
+    private CellFieldComponent _cellField;
 
     private readonly UnityEngine.Camera _camera;
 
@@ -41,8 +41,8 @@ namespace Systems.Movement
       _gridPositionsPool = _world.GetPool<GridPositionComponent>();
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
 
-      var fieldPool = _world.GetPool<FieldComponent>();
-      _field = fieldPool.GetRawDenseItems()[1];
+      var fieldPool = _world.GetPool<CellFieldComponent>();
+      _cellField = fieldPool.GetRawDenseItems()[1];
     }
 
     public void Run(IEcsSystems systems)
@@ -65,7 +65,7 @@ namespace Systems.Movement
       if (!firstChipFound) 
         return;
       
-      bool secondChipFound = FindSecondChip(gridPosition, _field, swapCommand, out ChipComponent secondChip);
+      bool secondChipFound = FindSecondChip(gridPosition, _cellField, swapCommand, out ChipComponent secondChip);
 
       if (!secondChipFound) 
         return;
@@ -108,7 +108,7 @@ namespace Systems.Movement
       return raycastHit2D;
     }
 
-    private bool FindSecondChip(GridPositionComponent gridPosition, FieldComponent field, SwapCommandComponent swapCommand, out ChipComponent secondChip)
+    private bool FindSecondChip(GridPositionComponent gridPosition, CellFieldComponent cellField, SwapCommandComponent swapCommand, out ChipComponent secondChip)
     {
       gridPosition.Position += swapCommand.Ray.Item2;
 
@@ -117,9 +117,7 @@ namespace Systems.Movement
 
       try
       {
-        GridPositionComponent secondElementPosition = field.Grid[gridPosition.Position.x, gridPosition.Position.y];
-
-        BusyCellComponent busyCellComponent = _busyCellsPool.Get(secondElementPosition.EntityIndex);
+        BusyCellComponent busyCellComponent = _busyCellsPool.Get(cellField.Grid[gridPosition.Position.x, gridPosition.Position.y].EntityIndex);
         secondChip = _chipPool.Get(busyCellComponent.ChipEntityIndex);
 
         isFound = true;

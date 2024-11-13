@@ -19,6 +19,7 @@ internal sealed class EcsStartup : MonoBehaviour
   private EcsWorld _world;
 
   private IEcsSystems _systems;
+  
   private EcsRunSystemsWithInterval _systemsWithInterval;
 
   private CellView _cellViewPrefab;
