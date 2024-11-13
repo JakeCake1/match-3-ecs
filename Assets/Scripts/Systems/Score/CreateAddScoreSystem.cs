@@ -38,14 +38,14 @@ namespace Systems.Score
         ref AddScoreCommandComponent addScoreCommand = ref _scoreCommandsPool.Get(commandEntityIndex);
         ref ScoreCountComponent scoreCount = ref _scoreCountPool.GetRawDenseItems()[1];
         
-        UpdatePlayerScore(scoreCount, addScoreCommand);
-        CreateAddScoreViewEntity(addScoreCommand);
+        UpdatePlayerScore(ref scoreCount, ref addScoreCommand);
+        CreateAddScoreViewEntity(ref addScoreCommand);
 
         _world.DelEntity(commandEntityIndex);
       }
     }
 
-    private void UpdatePlayerScore(ScoreCountComponent scoreCount, AddScoreCommandComponent addScoreCommand)
+    private void UpdatePlayerScore(ref ScoreCountComponent scoreCount, ref AddScoreCommandComponent addScoreCommand)
     {
       scoreCount.PlayerScore += ScoreModifier * addScoreCommand.ScoreCount;
 
@@ -53,7 +53,7 @@ namespace Systems.Score
         _updateScoreViewsPool.Add(scoreCount.CounterEntityIndex);
     }
 
-    private void CreateAddScoreViewEntity(AddScoreCommandComponent addScoreCommand)
+    private void CreateAddScoreViewEntity(ref AddScoreCommandComponent addScoreCommand)
     {
       int addScoreViewEntityIndex = _world.NewEntity();
       ref ShowAddedScoreCountComponent showAddedScoreCount = ref _showAddedScoreViewsPool.Add(addScoreViewEntityIndex);

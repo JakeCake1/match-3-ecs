@@ -56,7 +56,8 @@ namespace Systems.Score
     private void UpdateScoreView(int scoreViewEntityIndex)
     {
       ref ScoreCountViewRefComponent scoreCountViewRef = ref _scoreCountViewsPool.Get(scoreViewEntityIndex);
-      scoreCountViewRef.ScoreView.SetCount(_scoreCountPool.Get(_playerScoreEntityIndex).PlayerScore);
+      int playerScore = _scoreCountPool.Get(_playerScoreEntityIndex).PlayerScore;
+      scoreCountViewRef.ScoreView.SetCount(playerScore);
     }
   }
 }
