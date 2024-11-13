@@ -6,6 +6,7 @@ using Components.Chips;
 using Components.Chips.Markers;
 using Components.Common;
 using Components.Field;
+using Components.Movement;
 using Leopotam.EcsLite;
 
 namespace Systems.Movement
@@ -20,7 +21,7 @@ namespace Systems.Movement
     private EcsPool<GridPositionComponent> _positionsPool;
     private EcsPool<BusyCellComponent> _busyCellsPool;
     private EcsPool<PlacedChipComponent> _placedChipsPool;
-    private EcsPool<ChipViewRefComponent> _chipViewRefsPool;
+    private EcsPool<MoveViewCommand> _moveViewsCommandsPool;
     private EcsPool<FieldComponent> _fieldPool;
 
     private FieldComponent _field;
@@ -35,7 +36,7 @@ namespace Systems.Movement
       _positionsPool = _world.GetPool<GridPositionComponent>();
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
       _placedChipsPool = _world.GetPool<PlacedChipComponent>();
-      _chipViewRefsPool = _world.GetPool<ChipViewRefComponent>();
+      _moveViewsCommandsPool = _world.GetPool<MoveViewCommand>();
 
       _fieldPool = _world.GetPool<FieldComponent>();
       _field = _fieldPool.GetRawDenseItems()[1];
@@ -83,8 +84,10 @@ namespace Systems.Movement
       ref GridPositionComponent chipPosition = ref _positionsPool.Get(freeChipEntityIndex);
       
       chipPosition.Position = _field.Grid[chipPosition.Position.x, y].Position;
-      _chipViewRefsPool.Get(freeChipEntityIndex).ChipView.SetPosition(chipPosition.Position); //TODO Вынести позиционирования View фишки в другую систему
 
+      ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Add(freeChipEntityIndex);
+      moveViewCommand.NewViewPosition = chipPosition.Position;
+      
       _placedChipsPool.Add(freeChipEntityIndex);
       
       ref BusyCellComponent busyCellComponent = ref _busyCellsPool.Add(cellEntityIndex);

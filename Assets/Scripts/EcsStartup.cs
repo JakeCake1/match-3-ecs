@@ -64,6 +64,7 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new FindSwapsSystem(_camera))
       .Add(new SwapSystem())
       .Add(new SetPositionInGridSystem())
+      .Add(new SetPositionForViewSystem())
       .Add(new RechargeInjectorsSystem())
       .Add(new DestroyChipsSystem())
       .Add(new VerticalShiftSystem())
