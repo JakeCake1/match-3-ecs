@@ -19,6 +19,7 @@ internal sealed class EcsStartup : MonoBehaviour
   private EcsWorld _world;
 
   private IEcsSystems _systems;
+  
   private EcsRunSystemsWithInterval _systemsWithInterval;
 
   private CellView _cellViewPrefab;
@@ -59,11 +60,14 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new CameraResizeInitSystem(_camera, _cameraData))
       .Add(new CreateChipsInjectorsInitSystem(_chipInjectorsData))
       
+      //
+      
       .Add(new CreateChipsSystem(_fieldData))
       .Add(new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
       .Add(new FindSwapsSystem(_camera))
       .Add(new SwapSystem())
       .Add(new SetPositionInGridSystem())
+      .Add(new SetPositionForViewSystem())
       .Add(new RechargeInjectorsSystem())
       .Add(new DestroyChipsSystem())
       .Add(new VerticalShiftSystem())

@@ -11,7 +11,7 @@ namespace Systems.Grid
   {
     private readonly FieldData _fieldData;
     
-    private EcsPool<FieldComponent> _fieldsPool;
+    private EcsPool<CellFieldComponent> _fieldsPool;
     private EcsPool<GridPositionComponent> _gridPositionsPool;
 
     public CreateFieldInitSystem(FieldData fieldData) =>
@@ -21,7 +21,7 @@ namespace Systems.Grid
     {
       EcsWorld world = systems.GetWorld();
 
-      _fieldsPool = world.GetPool<FieldComponent>();
+      _fieldsPool = world.GetPool<CellFieldComponent>();
       _gridPositionsPool = world.GetPool<GridPositionComponent>();
 
       CreateField(world);
@@ -32,38 +32,38 @@ namespace Systems.Grid
       int fieldHeight = _fieldData.Size.y;
       int fieldWidth = _fieldData.Size.x;
 
-      FieldComponent field = CreateFieldEntity(world, fieldWidth, fieldHeight);
-      CreateFieldCells(fieldHeight, fieldWidth, world, field);
+      CellFieldComponent cellField = CreateFieldEntity(world, fieldWidth, fieldHeight);
+      CreateFieldCells(fieldHeight, fieldWidth, world, cellField);
     }
 
-    private FieldComponent CreateFieldEntity(EcsWorld world, int fieldWidth, int fieldHeight)
+    private CellFieldComponent CreateFieldEntity(EcsWorld world, int fieldWidth, int fieldHeight)
     {
       var gridEntity = world.NewEntity();
-      ref FieldComponent field = ref _fieldsPool.Add(gridEntity);
+      ref CellFieldComponent cellField = ref _fieldsPool.Add(gridEntity);
       
-      field.Grid = new GridPositionComponent[fieldWidth, fieldHeight];
+      cellField.Grid = new CellComponent[fieldWidth, fieldHeight];
       
-      return field;
+      return cellField;
     }
 
-    private void CreateFieldCells(int fieldHeight, int fieldWidth, EcsWorld world, FieldComponent field)
+    private void CreateFieldCells(int fieldHeight, int fieldWidth, EcsWorld world, CellFieldComponent cellField)
     {
       for (int y = 0; y < fieldHeight; y++)
       for (int x = 0; x < fieldWidth; x++) 
-          field.Grid[x, y] = CreateCellEntity(world, x, y);
+          cellField.Grid[x, y] = CreateCellEntity(world, x, y);
     }
 
-    private GridPositionComponent CreateCellEntity(EcsWorld world, int x, int y)
+    private CellComponent CreateCellEntity(EcsWorld world, int x, int y)
     {
       int cellEntity = world.NewEntity();
-      world.GetPool<CellComponent>().Add(cellEntity);
+      ref CellComponent cellComponent = ref world.GetPool<CellComponent>().Add(cellEntity);
 
       ref GridPositionComponent cellGridPosition = ref _gridPositionsPool.Add(cellEntity);
 
       cellGridPosition.Position = new Vector2Int(x, y);
-      cellGridPosition.EntityIndex = cellEntity;
+      cellComponent.EntityIndex = cellEntity;
       
-      return cellGridPosition;
+      return cellComponent;
     }
   }
 }

@@ -3,6 +3,7 @@ using Components.Chips;
 using Components.Chips.Markers;
 using Components.Command;
 using Components.Common;
+using Components.Field;
 using Leopotam.EcsLite;
 
 namespace Systems.Movement
@@ -18,7 +19,8 @@ namespace Systems.Movement
     private EcsPool<BusyCellComponent> _busyCellsPool;
     private EcsPool<PlacedChipComponent> _placedChipsPool;
     private EcsPool<ChipInCheckComponent> _chipsInCheckPool;
-    
+    private EcsPool<ChipsFieldComponent> _chipsFieldPool;
+
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
@@ -30,6 +32,8 @@ namespace Systems.Movement
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
       _placedChipsPool = _world.GetPool<PlacedChipComponent>();
       _chipsInCheckPool = _world.GetPool<ChipInCheckComponent>();
+      
+      _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
     }
 
     public void Run(IEcsSystems systems)
@@ -43,12 +47,17 @@ namespace Systems.Movement
     }
     
     private void Swap(ChipComponent firstChip, ChipComponent secondChip, bool isUserInitiated)
-    {
+    {     
+      ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];
+
       ref GridPositionComponent firstChipPosition = ref _gridPositionsPool.Get(firstChip.EntityIndex);
       ref GridPositionComponent secondChipPosition = ref _gridPositionsPool.Get(secondChip.EntityIndex);
       
       (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
       (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
+      
+      (chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y], chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y])
+        = (chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y], chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y]);
       
       DetachChips(firstChip, secondChip);
       

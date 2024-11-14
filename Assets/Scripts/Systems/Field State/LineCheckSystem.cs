@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Components.Chips;
 using Components.Command;
-using Components.Common;
 using Components.Field;
 using Leopotam.EcsLite;
 
@@ -10,35 +9,25 @@ namespace Systems.Field_State
   public abstract class LineCheckSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
-
-    private EcsFilter _chipFilter;
-
-    private EcsPool<ChipComponent> _chipsPool;
-    private EcsPool<GridPositionComponent> _gridPositionsPool;
-
-    private FieldComponent _field;
+    
+    private EcsPool<ChipsFieldComponent> _chipsFieldPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
-      _chipFilter = _world.Filter<ChipComponent>().End();
-
-      _chipsPool = _world.GetPool<ChipComponent>();
-      _gridPositionsPool = _world.GetPool<GridPositionComponent>();
-      
-      var fieldPool = _world.GetPool<FieldComponent>();
-      _field = fieldPool.GetRawDenseItems()[1];
+      _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
     }
 
     public void Run(IEcsSystems systems)
     {
-      ChipComponent[,] chips = CreateChipsGrid();  //TODO Кэшировать фишки
-      List<Queue<ChipComponent>> combinations = FindLineCombinations(chips);
+      ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.GetRawDenseItems()[1];
+      
+      List<Queue<ChipComponent>> combinations = FindLineCombinations(ref chipsFieldComponent.Grid);
       AddCombinationsToMergeBuffer(combinations);
     }
 
-    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ChipComponent[,] chips);
+    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ref ChipComponent[,] chips);
     
     protected void CheckChipForSequence(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
     {
@@ -63,23 +52,10 @@ namespace Systems.Field_State
 
     private void AddChipToQueue(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
     {
-      if(chips[x, y].EntityIndex == 0)
+      if(chips[x, y].EntityIndex == -1)
         return;
       
       chipsCombo.Enqueue(chips[x, y]);
-    }
-    
-    private ChipComponent[,] CreateChipsGrid()
-    {
-      ChipComponent[,] chips = new ChipComponent[_field.Grid.GetLength(0), _field.Grid.GetLength(1)];
-
-      foreach (int chipEntityIndex in _chipFilter)
-      {
-        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntityIndex);
-        chips[gridPosition.Position.x, gridPosition.Position.y] = _chipsPool.Get(chipEntityIndex);
-      }
-
-      return chips;
     }
 
     private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
