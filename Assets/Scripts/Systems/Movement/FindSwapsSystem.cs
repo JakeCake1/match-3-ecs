@@ -60,14 +60,14 @@ namespace Systems.Movement
       if(IsSwipeDiagonal())
         return;
       
-      bool firstChipFound = FindFirstChipForSwap(swapCommand, out ChipComponent firstChip, out GridPositionComponent gridPosition);
+      int firstChipFound = FindFirstChipForSwap(swapCommand, out ChipComponent firstChip, out GridPositionComponent gridPosition);
       
-      if (!firstChipFound) 
+      if (firstChipFound == -1) 
         return;
       
-      bool secondChipFound = FindSecondChip(gridPosition, _cellField, swapCommand, out ChipComponent secondChip);
+      int secondChipFound = FindSecondChip(gridPosition, _cellField, swapCommand, out ChipComponent secondChip);
 
-      if (!secondChipFound) 
+      if (secondChipFound == -1) 
         return;
       
       CreateSwapCombination(firstChip, secondChip);
@@ -86,48 +86,48 @@ namespace Systems.Movement
       swapCombination.IsUserInitiated = true;
     }
 
-    private bool FindFirstChipForSwap(SwapCommandComponent swapCommand, out ChipComponent chip, out GridPositionComponent gridPosition)
+    private int FindFirstChipForSwap(SwapCommandComponent swapCommand, out ChipComponent chip, out GridPositionComponent gridPosition)
     {
       var ray = _camera.ScreenPointToRay(swapCommand.Ray.Item1);
       RaycastHit2D raycastHit2D = Physics2D.Raycast(ray.origin, ray.direction);
 
       chip = default;
+      chip.EntityIndex = -1;
+      
       gridPosition = default;
 
       if (!raycastHit2D) 
-        return raycastHit2D;
+        return chip.EntityIndex;
       
       var chipView = raycastHit2D.collider.GetComponent<ChipView>();
         
       if (!chipView) 
-        return raycastHit2D;
+        return chip.EntityIndex;
         
       chip = _chipPool.Get(chipView.EntityIndex);
       gridPosition = _gridPositionsPool.Get(chipView.EntityIndex);
 
-      return raycastHit2D;
+      return chip.EntityIndex;
     }
 
-    private bool FindSecondChip(GridPositionComponent gridPosition, CellFieldComponent cellField, SwapCommandComponent swapCommand, out ChipComponent secondChip)
+    private int FindSecondChip(GridPositionComponent gridPosition, CellFieldComponent cellField, SwapCommandComponent swapCommand, out ChipComponent secondChip)
     {
       gridPosition.Position += swapCommand.Ray.Item2;
 
       secondChip = default;
-      bool isFound = false;
-
+      secondChip.EntityIndex = -1;
+      
       try
       {
         BusyCellComponent busyCellComponent = _busyCellsPool.Get(cellField.Grid[gridPosition.Position.x, gridPosition.Position.y].EntityIndex);
         secondChip = _chipPool.Get(busyCellComponent.ChipEntityIndex);
-
-        isFound = true;
       }
       catch (IndexOutOfRangeException)
       {
         Debug.Log("Ooops, reached borders");
       }
 
-      return isFound;
+      return secondChip.EntityIndex;
     }
   }
 }

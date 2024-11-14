@@ -60,6 +60,8 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new CameraResizeInitSystem(_camera, _cameraData))
       .Add(new CreateChipsInjectorsInitSystem(_chipInjectorsData))
       
+      //
+      
       .Add(new CreateChipsSystem(_fieldData))
       .Add(new CreateChipsViewsSystem(_fieldData, _chipViewPrefab))
       .Add(new FindSwapsSystem(_camera))
@@ -77,10 +79,10 @@ internal sealed class EcsStartup : MonoBehaviour
       
       .Add(new ControlSystem())
       
-      .Add(new ScoreCountSystem())
-      .Add(new CreateScoreViewInitSystem(_scoreViewPrefab))
-      .Add(new CreateAddScoreSystem())
-      .Add(new CreateAddScoreViewSystem(_addScoreViewPrefab))
+      // .Add(new ScoreCountSystem())
+      // .Add(new CreateScoreViewInitSystem(_scoreViewPrefab))
+      // .Add(new CreateAddScoreSystem())
+      // .Add(new CreateAddScoreViewSystem(_addScoreViewPrefab))
       
 #if UNITY_EDITOR
       .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())

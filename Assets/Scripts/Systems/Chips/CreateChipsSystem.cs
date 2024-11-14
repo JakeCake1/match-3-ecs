@@ -51,12 +51,25 @@ namespace Systems.Chips
       if (AllCellsAreBusy())
         return;
 
+      bool isSomethingCreated = false;
+      
       foreach (int injectorEntityIndex in _readyInjectorsFilter)
       {
         CreateChip(injectorEntityIndex);
         _readyInjectorsPool.Del(injectorEntityIndex);
+
+        isSomethingCreated = true;
       }
       
+      if(isSomethingCreated)
+        LogChipsCreation();
+
+      bool AllCellsAreBusy() =>
+        _notBusyCellsFilter.GetEntitiesCount() == 0;
+    }
+
+    private void LogChipsCreation()
+    {
       ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
 
       StringBuilder stringBuilder = new StringBuilder();
@@ -75,9 +88,6 @@ namespace Systems.Chips
       }
       
       Debug.Log(stringBuilder.ToString());
-      
-      bool AllCellsAreBusy() =>
-        _notBusyCellsFilter.GetEntitiesCount() == 0;
     }
 
     private void CreateChipsField()
@@ -85,7 +95,11 @@ namespace Systems.Chips
       _chipsFieldEntityIndex = _world.NewEntity();
       
       ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Add(_chipsFieldEntityIndex);
-      chipsFieldComponent.Grid = new ChipComponent[_fieldData.Size.x, _fieldData.Size.y + 1];
+      chipsFieldComponent.Grid = new ChipComponent[_fieldData.Size.x, _fieldData.Size.y];
+            
+      for (int y = 0; y < chipsFieldComponent.Grid.GetLength(1); y++)
+      for (int x = 0; x < chipsFieldComponent.Grid.GetLength(0); x++) 
+          chipsFieldComponent.Grid[x, y].EntityIndex = -1;
     }
 
     private void CreateChip(int injectorEntityIndex)
@@ -97,7 +111,7 @@ namespace Systems.Chips
       
       chip.EntityIndex = chipEntityIndex;
       chip.Type = Random.Range(0, _fieldData.ChipsCount);
-      chipPosition.Position = _gridPositionsPool.Get(injectorEntityIndex).Position;
+      chipPosition.Position = _gridPositionsPool.Get(injectorEntityIndex).Position + Vector2Int.down;
 
       ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
       chipsFieldComponent.Grid[chipPosition.Position.x, chipPosition.Position.y] = chip;

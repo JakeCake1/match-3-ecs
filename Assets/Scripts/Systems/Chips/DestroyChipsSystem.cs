@@ -40,7 +40,7 @@ namespace Systems.Chips
 
     public void Run(IEcsSystems systems)
     {
-      if(true || NothingToDestroy())
+      if(NothingToDestroy())
         return;
       
       ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];

@@ -29,7 +29,10 @@ namespace Systems.Movement
     {
       _world = systems.GetWorld();
 
-      _notPlacedChipsFilter = _world.Filter<ChipComponent>().Inc<GridPositionComponent>().Exc<PlacedChipComponent>().End();
+      _notPlacedChipsFilter = _world.Filter<ChipComponent>()
+        .Inc<GridPositionComponent>()
+        .Exc<PlacedChipComponent>()
+        .End();
 
       _chipsPool = _world.GetPool<ChipComponent>();
       _positionsPool = _world.GetPool<GridPositionComponent>();
@@ -52,16 +55,14 @@ namespace Systems.Movement
       {
         for (int x = 0; x < chipsField.Grid.GetLength(0); x++)
         {
-          if(chipsField.Grid[x,y].EntityIndex == -1)
+          if(IsEmptyGridCell(ref chipsField.Grid[x, y]))
             continue;
           
-          if(_placedChipsPool.Has(chipsField.Grid[x,y].EntityIndex))
-            continue;
-
-          if(!_positionsPool.Has(chipsField.Grid[x,y].EntityIndex))
+          if(ChipIsPlaced(ref chipsField.Grid[x, y]))
             continue;
           
           ref GridPositionComponent chipPosition = ref _positionsPool.Get(chipsField.Grid[x,y].EntityIndex);
+          
           int targetY = FindLowestNotBusyPositionInGrid(chipPosition, out int targetCellEntityIndex);
           MarkChipAndPlace(ref chipsField, targetY, chipsField.Grid[x,y].EntityIndex, targetCellEntityIndex);
         }
@@ -86,6 +87,12 @@ namespace Systems.Movement
       
       bool AllChipsPlaced() => 
         _notPlacedChipsFilter.GetEntitiesCount() == 0;
+
+      bool IsEmptyGridCell(ref ChipComponent chipComponent) => 
+        chipComponent.EntityIndex == -1;
+
+      bool ChipIsPlaced(ref ChipComponent chipComponent) => 
+        _placedChipsPool.Has(chipComponent.EntityIndex);
     }
 
     private int FindLowestNotBusyPositionInGrid(GridPositionComponent chipPosition, out int targetCellEntityIndex)

@@ -64,12 +64,21 @@ namespace Systems.Movement
       {
         Vector2Int chipPosition = _gridPositionsPool.Get(chipEntityIndex).Position;
 
-        if (chipPosition.x == cellPosition.Position.x && chipPosition.y > cellPosition.Position.y && _placedChipsPool.Has(chipEntityIndex))
+        if (ChipAndCellInSameColumn(chipPosition) && ChipIsAboveFreeCell(chipPosition) && ChipIsPlacedOnGrid(chipEntityIndex))
         {     
           _placedChipsPool.Del(chipEntityIndex);
           break;
         }
       }
+
+      bool ChipAndCellInSameColumn(Vector2Int chipPosition) => 
+        chipPosition.x == cellPosition.Position.x;
+
+      bool ChipIsAboveFreeCell(Vector2Int chipPosition) => 
+        chipPosition.y > cellPosition.Position.y;
+
+      bool ChipIsPlacedOnGrid(int chipEntityIndex) => 
+        _placedChipsPool.Has(chipEntityIndex);
     }
 
     private void FreeCell(int cellEntityIndex)
