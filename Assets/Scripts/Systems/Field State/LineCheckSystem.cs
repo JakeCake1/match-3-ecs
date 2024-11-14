@@ -52,7 +52,7 @@ namespace Systems.Field_State
 
     private void AddChipToQueue(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
     {
-      if(chips[x, y].EntityIndex == 0)
+      if(chips[x, y].EntityIndex == -1)
         return;
       
       chipsCombo.Enqueue(chips[x, y]);
