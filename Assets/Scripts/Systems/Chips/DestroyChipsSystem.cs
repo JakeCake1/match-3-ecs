@@ -4,11 +4,10 @@ using Components.Chips.Markers;
 using Components.Common;
 using Components.Field;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Systems.Chips
 {
-  public sealed class DestroyChipsSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class DestroyChipsSystem : IEcsInitSystem, IEcsRunSystem //TODO: Разделить уничтожение сущностей и View
   {
     private EcsWorld _world;
     

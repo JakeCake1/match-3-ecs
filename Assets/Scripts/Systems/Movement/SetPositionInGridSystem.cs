@@ -68,23 +68,6 @@ namespace Systems.Movement
         }
       }
       
-      StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.AppendLine("SetPositionInGridSystem");
-
-      for (int y = chipsField.Grid.GetLength(1) - 1; y >= 0; y--)
-      {   
-        string s = "";
-
-        for (int x = 0; x < chipsField.Grid.GetLength(0); x++)
-        {
-          s += $"({chipsField.Grid[x,y].EntityIndex})/{chipsField.Grid[x,y].Type} ";
-        }
-
-        stringBuilder.AppendLine(s);
-      }
-      
-      Debug.Log(stringBuilder.ToString());
-      
       bool AllChipsPlaced() => 
         _notPlacedChipsFilter.GetEntitiesCount() == 0;
 

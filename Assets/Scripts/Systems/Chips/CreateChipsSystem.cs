@@ -1,4 +1,3 @@
-using System.Text;
 using Components.Cell;
 using Components.Cell.Markers;
 using Components.Chips;
@@ -50,44 +49,15 @@ namespace Systems.Chips
     {
       if (AllCellsAreBusy())
         return;
-
-      bool isSomethingCreated = false;
       
       foreach (int injectorEntityIndex in _readyInjectorsFilter)
       {
         CreateChip(injectorEntityIndex);
         _readyInjectorsPool.Del(injectorEntityIndex);
-
-        isSomethingCreated = true;
       }
       
-      if(isSomethingCreated)
-        LogChipsCreation();
-
       bool AllCellsAreBusy() =>
         _notBusyCellsFilter.GetEntitiesCount() == 0;
-    }
-
-    private void LogChipsCreation()
-    {
-      ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
-
-      StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.AppendLine("CreateChipsSystem");
-
-      for (int y = chipsFieldComponent.Grid.GetLength(1) - 1; y >= 0; y--)
-      {   
-        string s = "";
-
-        for (int x = 0; x < chipsFieldComponent.Grid.GetLength(0); x++)
-        {
-          s += $"({chipsFieldComponent.Grid[x,y].EntityIndex})/{chipsFieldComponent.Grid[x,y].Type} ";
-        }
-
-        stringBuilder.AppendLine(s);
-      }
-      
-      Debug.Log(stringBuilder.ToString());
     }
 
     private void CreateChipsField()
@@ -105,7 +75,6 @@ namespace Systems.Chips
     private void CreateChip(int injectorEntityIndex)
     {
       int chipEntityIndex = _world.NewEntity();
-
       ref ChipComponent chip = ref _chipsPool.Add(chipEntityIndex);
       ref GridPositionComponent chipPosition = ref _gridPositionsPool.Add(chipEntityIndex);
       

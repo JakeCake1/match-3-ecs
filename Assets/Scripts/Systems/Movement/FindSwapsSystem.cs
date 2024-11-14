@@ -50,7 +50,6 @@ namespace Systems.Movement
       foreach (int commandEntityIndex in _swapCommandsFilter)
       {
         TryToSwap(_swapCommandsPool.Get(commandEntityIndex));
-        
         _world.DelEntity(commandEntityIndex);
       }
     }
@@ -60,14 +59,10 @@ namespace Systems.Movement
       if(IsSwipeDiagonal())
         return;
       
-      int firstChipFound = FindFirstChipForSwap(swapCommand, out ChipComponent firstChip, out GridPositionComponent gridPosition);
-      
-      if (firstChipFound == -1) 
+      if (FindFirstChipForSwap(swapCommand, out ChipComponent firstChip, out GridPositionComponent gridPosition) == -1) 
         return;
       
-      int secondChipFound = FindSecondChip(gridPosition, _cellField, swapCommand, out ChipComponent secondChip);
-
-      if (secondChipFound == -1) 
+      if (FindSecondChip(gridPosition, _cellField, swapCommand, out ChipComponent secondChip) == -1) 
         return;
       
       CreateSwapCombination(firstChip, secondChip);
@@ -86,7 +81,7 @@ namespace Systems.Movement
       swapCombination.IsUserInitiated = true;
     }
 
-    private int FindFirstChipForSwap(SwapCommandComponent swapCommand, out ChipComponent chip, out GridPositionComponent gridPosition)
+    private int FindFirstChipForSwap(SwapCommandComponent swapCommand, out ChipComponent chip, out GridPositionComponent gridPosition) //TODO: Избавиться от рейкастов
     {
       var ray = _camera.ScreenPointToRay(swapCommand.Ray.Item1);
       RaycastHit2D raycastHit2D = Physics2D.Raycast(ray.origin, ray.direction);
