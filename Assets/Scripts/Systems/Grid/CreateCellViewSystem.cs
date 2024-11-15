@@ -9,6 +9,8 @@ namespace Systems.Grid
 {
   public sealed class CreateCellViewSystem : IEcsInitSystem, IEcsDestroySystem
   {
+    private const string GridParentName = "Grid";
+    
     private readonly CellView _cellViewPrefab;
     private readonly FieldData _fieldData;
     
@@ -29,7 +31,10 @@ namespace Systems.Grid
     {
       EcsWorld world = systems.GetWorld();
 
-      _cellsWithoutViewsFilter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Exc<CellViewRefComponent>().End();
+      _cellsWithoutViewsFilter = world.Filter<CellComponent>()
+        .Inc<GridPositionComponent>()
+        .Exc<CellViewRefComponent>()
+        .End();
 
       _cellViewRefsPool = world.GetPool<CellViewRefComponent>();
       _gridPositionsPool = world.GetPool<GridPositionComponent>();
@@ -39,16 +44,24 @@ namespace Systems.Grid
 
     private void CreateCellViews()
     {
-      _parentObject = new GameObject("Grid");
+      _parentObject = new GameObject(GridParentName);
 
-      foreach (int cellEntityIndex in _cellsWithoutViewsFilter)
+      foreach (int cellEntityIndex in _cellsWithoutViewsFilter) 
+        CreateCellView(cellEntityIndex);
+    }
+
+    private void CreateCellView(int cellEntityIndex)
+    {
+      ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(cellEntityIndex);
+
+      var cellView = Object.Instantiate(_cellViewPrefab, _parentObject.transform).GetComponent<CellView>();
+      cellView.transform.position = gridPosition.Position + _fieldData.Offset * gridPosition.Position;
+      
+      AttachViewToCellViewReference();
+
+      void AttachViewToCellViewReference()
       {
         ref CellViewRefComponent cellViewRef = ref _cellViewRefsPool.Add(cellEntityIndex);
-        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(cellEntityIndex);
-
-        var cellView = Object.Instantiate(_cellViewPrefab, _parentObject.transform).GetComponent<CellView>();
-        cellView.transform.position = gridPosition.Position + _fieldData.Offset * gridPosition.Position;
-
         cellViewRef.CellView = cellView;
       }
     }
