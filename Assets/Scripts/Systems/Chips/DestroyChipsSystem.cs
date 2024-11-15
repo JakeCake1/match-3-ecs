@@ -7,7 +7,7 @@ using Leopotam.EcsLite;
 
 namespace Systems.Chips
 {
-  public sealed class DestroyChipsSystem : IEcsInitSystem, IEcsRunSystem //TODO: Разделить уничтожение сущностей и View
+  public sealed class DestroyChipsSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsWorld _world;
     
@@ -18,7 +18,8 @@ namespace Systems.Chips
     private EcsPool<BusyCellComponent> _busyCellsPool;
     private EcsPool<ChipViewRefComponent> _chipViewsPool;
     private EcsPool<ChipsFieldComponent> _chipsFieldPool;
-    
+    private EcsPool<ChipViewForDestroyComponent> _chipsViewForDestroyPool;
+
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
@@ -33,6 +34,7 @@ namespace Systems.Chips
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
       _chipViewsPool = _world.GetPool<ChipViewRefComponent>();  
       _gridPositionsPool = _world.GetPool<GridPositionComponent>();  
+      _chipsViewForDestroyPool = _world.GetPool<ChipViewForDestroyComponent>();  
       
       _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
     }
@@ -46,22 +48,38 @@ namespace Systems.Chips
 
       foreach (int chipEntityIndex in _chipsForDestroyFilter)
       {      
-        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntityIndex);
-
-        int positionX = gridPosition.Position.x;
-        int positionY = gridPosition.Position.y;
-        
-        _chipViewsPool.Get(chipEntityIndex).ChipView.Destroy();
-        _busyCellsPool.Del(_chipsPool.Get(chipEntityIndex).ParentCellEntityIndex);
-        
-        _world.DelEntity(chipEntityIndex);
-        
-        chipsField.Grid[positionX, positionY] = default;
-        chipsField.Grid[positionX, positionY].EntityIndex = -1;
+        MarkCellAsNotBusy(chipEntityIndex);
+        RequestForChipViewDestroy(chipEntityIndex);
+        ResetChipInGrid(chipEntityIndex, ref chipsField);
+        DestroyChip(chipEntityIndex);
       }
 
       bool NothingToDestroy() => 
         _chipsForDestroyFilter.GetEntitiesCount() == 0;
     }
+
+    private void MarkCellAsNotBusy(int chipEntityIndex) => 
+      _busyCellsPool.Del(_chipsPool.Get(chipEntityIndex).ParentCellEntityIndex);
+
+    private void RequestForChipViewDestroy(int chipEntityIndex)
+    {
+      int destroyViewCommandEntity = _world.NewEntity();
+      ref ChipViewForDestroyComponent chipForDestroyComponent = ref _chipsViewForDestroyPool.Add(destroyViewCommandEntity);
+      chipForDestroyComponent.ChipView = _chipViewsPool.Get(chipEntityIndex).ChipView;
+    }
+
+    private void ResetChipInGrid(int chipEntityIndex, ref ChipsFieldComponent chipsField)
+    {
+      ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntityIndex);
+
+      int positionX = gridPosition.Position.x;
+      int positionY = gridPosition.Position.y;
+        
+      chipsField.Grid[positionX, positionY] = default;
+      chipsField.Grid[positionX, positionY].EntityIndex = -1;
+    }
+
+    private void DestroyChip(int chipEntityIndex) => 
+      _world.DelEntity(chipEntityIndex);
   }
 }

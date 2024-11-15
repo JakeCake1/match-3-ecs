@@ -70,6 +70,7 @@ internal sealed class EcsStartup : MonoBehaviour
       .Add(new SetPositionForViewSystem())
       .Add(new RechargeInjectorsSystem())
       .Add(new DestroyChipsSystem())
+      .Add(new DestroyChipsViewsSystem())
       .Add(new VerticalShiftSystem())
       .Add(new VerticalCheckSystem())
       .Add(new HorizontalCheckSystem())
