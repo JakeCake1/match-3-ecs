@@ -21,7 +21,11 @@ namespace Systems.Camera
     {
       EcsWorld world = systems.GetWorld();
       
-      var cellsViewsFilter = world.Filter<CellComponent>().Inc<GridPositionComponent>().Inc<CellViewRefComponent>().End();
+      var cellsViewsFilter = world.Filter<CellComponent>()
+        .Inc<GridPositionComponent>()
+        .Inc<CellViewRefComponent>()
+        .End();
+      
       var cellViewsPool = world.GetPool<CellViewRefComponent>();
 
       DefineGridCorners(cellsViewsFilter, cellViewsPool, out Vector2 minGridCorner, out Vector2 maxGridCorner);
