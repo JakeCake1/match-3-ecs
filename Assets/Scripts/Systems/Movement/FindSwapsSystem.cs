@@ -114,7 +114,7 @@ namespace Systems.Movement
       
       try
       {
-        BusyCellComponent busyCellComponent = _busyCellsPool.Get(cellField.Grid[gridPosition.Position.x, gridPosition.Position.y].EntityIndex);
+        BusyCellComponent busyCellComponent = _busyCellsPool.Get(cellField.Grid[gridPosition.Position.x, gridPosition.Position.y]);
         secondChip = _chipPool.Get(busyCellComponent.ChipEntityIndex);
       }
       catch (IndexOutOfRangeException)

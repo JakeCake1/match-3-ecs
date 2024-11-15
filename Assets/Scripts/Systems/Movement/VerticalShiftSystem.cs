@@ -50,7 +50,7 @@ namespace Systems.Movement
         for (int y = cellPosition.Position.y; y < _cellField.Grid.GetLength(1); y++)
         {
           FreeChipIfItsFreeCellBelow(cellPosition);   
-          FreeCell(_cellField.Grid[cellPosition.Position.x, y].EntityIndex);
+          FreeCell(_cellField.Grid[cellPosition.Position.x, y]);
         }
       }
 

@@ -1,6 +1,5 @@
 using Data;
 using Leopotam.EcsLite;
-using Nenuacho.EcsLite.IntervalSystems;
 using Systems.Camera;
 using Systems.Chips;
 using Systems.Control;
@@ -20,8 +19,6 @@ internal sealed class EcsStartup : MonoBehaviour
 
   private IEcsSystems _systems;
   
-  private EcsRunSystemsWithInterval _systemsWithInterval;
-
   private CellView _cellViewPrefab;
   private ChipView _chipViewPrefab;
   private ScoreView _scoreViewPrefab;
@@ -91,11 +88,8 @@ internal sealed class EcsStartup : MonoBehaviour
       .Init();
   }
 
-  private void Update()
-  {
+  private void Update() => 
     _systems?.Run();
-    _systemsWithInterval?.Run(Time.deltaTime);
-  }
 
   private void OnDestroy()
   {

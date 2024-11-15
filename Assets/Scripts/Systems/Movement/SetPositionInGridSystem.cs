@@ -89,10 +89,10 @@ namespace Systems.Movement
 
       for (int y = startY; y >= 0; y--)
       {
-        if (_busyCellsPool.Has(cellField.Grid[chipPosition.Position.x, y].EntityIndex))
+        if (_busyCellsPool.Has(cellField.Grid[chipPosition.Position.x, y]))
           break;
 
-        targetCellEntityIndex = cellField.Grid[chipPosition.Position.x, y].EntityIndex;
+        targetCellEntityIndex = cellField.Grid[chipPosition.Position.x, y];
         targetY = y;
       }
 
@@ -106,7 +106,7 @@ namespace Systems.Movement
       ref CellFieldComponent cellField = ref _fieldPool.GetRawDenseItems()[1];
 
       Vector2Int cachedPosition = chipPosition.Position;
-      chipPosition.Position = _positionsPool.Get(cellField.Grid[chipPosition.Position.x, y].EntityIndex).Position;
+      chipPosition.Position = _positionsPool.Get(cellField.Grid[chipPosition.Position.x, y]).Position;
       
       chipsField.Grid[cachedPosition.x, cachedPosition.y] = default;
       chipsField.Grid[cachedPosition.x, cachedPosition.y].EntityIndex = -1;
