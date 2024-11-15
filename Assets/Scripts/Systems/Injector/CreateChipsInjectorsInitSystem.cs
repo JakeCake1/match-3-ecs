@@ -31,16 +31,24 @@ namespace Systems.Injector
 
     private void CreateChipsInjectors(EcsWorld world)
     {
-      foreach (Vector2Int chipsInjectorsPosition in _chipInjectorsData.ChipsInjectorsPositions)
+      foreach (Vector2Int chipsInjectorsPosition in _chipInjectorsData.ChipsInjectorsPositions) 
+        CreateChipInjector(world, chipsInjectorsPosition);
+    }
+
+    private void CreateChipInjector(EcsWorld world, Vector2Int chipsInjectorsPosition)
+    {
+      var chipInjectorEntityIndex = world.NewEntity();
+        
+      _chipsInjectorsPool.Add(chipInjectorEntityIndex);
+
+      AddGridPositionComponent();
+
+      _readyInjectorsPool.Add(chipInjectorEntityIndex);
+
+      void AddGridPositionComponent()
       {
-        var chipInjectorEntityIndex = world.NewEntity();
-        _chipsInjectorsPool.Add(chipInjectorEntityIndex);
-
         ref GridPositionComponent cellGridPosition = ref _gridPositionsPool.Add(chipInjectorEntityIndex);
-
         cellGridPosition.Position = new Vector2Int(chipsInjectorsPosition.x, chipsInjectorsPosition.y);
-
-        _readyInjectorsPool.Add(chipInjectorEntityIndex);
       }
     }
   }
