@@ -9,6 +9,8 @@ namespace Systems.Chips
 {
   public sealed class CreateChipsViewsSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
   {
+    private const string ChipsViewsParentName = "Chips";
+    
     private readonly ChipView _chipViewPrefab;
     private readonly FieldData _fieldData;
 
@@ -57,22 +59,28 @@ namespace Systems.Chips
     private void CreateChipView(int chipEntity)
     {
       ref ChipViewRefComponent chipViewRef = ref _chipViewRefsPool.Add(chipEntity);
-      ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntity);
-      ref ChipComponent chip = ref _chipsPool.Get(chipEntity);
-
-      chip.EntityIndex = chipEntity;
-
+      
       var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
 
-      chipView.Construct(chipEntity, _fieldData.Offset);
-      chipView.SetPosition(gridPosition.Position);
-      chipView.SetType(chip.Type);
+      SetupChipView();
+      AttachViewToChipReference(ref chipViewRef);
 
-      chipViewRef.ChipView = chipView;
+      void SetupChipView()
+      {
+        ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(chipEntity);
+        ref ChipComponent chip = ref _chipsPool.Get(chipEntity);
+        
+        chipView.Construct(chipEntity, _fieldData.Offset);
+        chipView.SetPosition(gridPosition.Position);
+        chipView.SetType(chip.Type);
+      }
+
+      void AttachViewToChipReference(ref ChipViewRefComponent chipViewRef) => 
+        chipViewRef.ChipView = chipView;
     }
 
     private void CreateChipsParentObject() =>
-      _chipsParent = new GameObject("Chips").transform;
+      _chipsParent = new GameObject(ChipsViewsParentName).transform;
 
     private void DestroyChipsParentObject() =>
       Object.Destroy(_chipsParent);
