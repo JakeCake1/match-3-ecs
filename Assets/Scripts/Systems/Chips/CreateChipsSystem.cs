@@ -75,15 +75,33 @@ namespace Systems.Chips
     private void CreateChip(int injectorEntityIndex)
     {
       int chipEntityIndex = _world.NewEntity();
-      ref ChipComponent chip = ref _chipsPool.Add(chipEntityIndex);
-      ref GridPositionComponent chipPosition = ref _gridPositionsPool.Add(chipEntityIndex);
       
-      chip.EntityIndex = chipEntityIndex;
-      chip.Type = Random.Range(0, _fieldData.ChipsCount);
-      chipPosition.Position = _gridPositionsPool.Get(injectorEntityIndex).Position + Vector2Int.down;
+      ref ChipComponent chip = ref AddChipComponent();
+      ref GridPositionComponent chipPosition = ref AddGridPositionComponent();
+      AttachChipToField(ref chip, ref chipPosition);
 
-      ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
-      chipsFieldComponent.Grid[chipPosition.Position.x, chipPosition.Position.y] = chip;
+      ref ChipComponent AddChipComponent()
+      {
+        ref ChipComponent chipComponent = ref _chipsPool.Add(chipEntityIndex);
+        chipComponent.EntityIndex = chipEntityIndex;
+        chipComponent.Type = Random.Range(0, _fieldData.ChipsCount);
+        
+        return ref chipComponent;
+      }
+      
+      ref GridPositionComponent AddGridPositionComponent()
+      {
+        ref GridPositionComponent gridPositionComponent = ref _gridPositionsPool.Add(chipEntityIndex);
+        gridPositionComponent.Position = _gridPositionsPool.Get(injectorEntityIndex).Position + Vector2Int.down;
+        
+        return ref gridPositionComponent;
+      }
+
+      void AttachChipToField(ref ChipComponent chip, ref GridPositionComponent chipPosition)
+      {
+        ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
+        chipsFieldComponent.Grid[chipPosition.Position.x, chipPosition.Position.y] = chip;
+      }
     }
   }
 }
