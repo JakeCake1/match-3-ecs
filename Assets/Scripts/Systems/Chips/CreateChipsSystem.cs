@@ -63,13 +63,18 @@ namespace Systems.Chips
     private void CreateChipsField()
     {
       _chipsFieldEntityIndex = _world.NewEntity();
-      
       ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Add(_chipsFieldEntityIndex);
+        
       chipsFieldComponent.Grid = new int[_fieldData.Size.x, _fieldData.Size.y];
-            
-      for (int y = 0; y < chipsFieldComponent.Grid.GetLength(1); y++)
-      for (int x = 0; x < chipsFieldComponent.Grid.GetLength(0); x++) 
+
+      FillGridWithNotInitializedIndexes(ref chipsFieldComponent);
+
+      void FillGridWithNotInitializedIndexes(ref ChipsFieldComponent chipsFieldComponent)
+      {   
+        for (int y = 0; y < chipsFieldComponent.Grid.GetLength(1); y++)
+        for (int x = 0; x < chipsFieldComponent.Grid.GetLength(0); x++) 
           chipsFieldComponent.Grid[x, y] = -1;
+      }
     }
 
     private void CreateChip(int injectorEntityIndex)
