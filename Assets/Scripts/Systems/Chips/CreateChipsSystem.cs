@@ -65,28 +65,27 @@ namespace Systems.Chips
       _chipsFieldEntityIndex = _world.NewEntity();
       
       ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Add(_chipsFieldEntityIndex);
-      chipsFieldComponent.Grid = new ChipComponent[_fieldData.Size.x, _fieldData.Size.y];
+      chipsFieldComponent.Grid = new int[_fieldData.Size.x, _fieldData.Size.y];
             
       for (int y = 0; y < chipsFieldComponent.Grid.GetLength(1); y++)
       for (int x = 0; x < chipsFieldComponent.Grid.GetLength(0); x++) 
-          chipsFieldComponent.Grid[x, y].EntityIndex = -1;
+          chipsFieldComponent.Grid[x, y] = -1;
     }
 
     private void CreateChip(int injectorEntityIndex)
     {
       int chipEntityIndex = _world.NewEntity();
       
-      ref ChipComponent chip = ref AddChipComponent();
+      AddChipComponent();
       ref GridPositionComponent chipPosition = ref AddGridPositionComponent();
-      AttachChipToField(ref chip, ref chipPosition);
-
-      ref ChipComponent AddChipComponent()
+      AttachChipToField(ref chipPosition);
+      
+      void AddChipComponent()
       {
         ref ChipComponent chipComponent = ref _chipsPool.Add(chipEntityIndex);
+     
         chipComponent.EntityIndex = chipEntityIndex;
         chipComponent.Type = Random.Range(0, _fieldData.ChipsCount);
-        
-        return ref chipComponent;
       }
       
       ref GridPositionComponent AddGridPositionComponent()
@@ -97,10 +96,10 @@ namespace Systems.Chips
         return ref gridPositionComponent;
       }
 
-      void AttachChipToField(ref ChipComponent chip, ref GridPositionComponent chipPosition)
+      void AttachChipToField(ref GridPositionComponent chipPosition)
       {
         ref ChipsFieldComponent chipsFieldComponent = ref _chipsFieldPool.Get(_chipsFieldEntityIndex);
-        chipsFieldComponent.Grid[chipPosition.Position.x, chipPosition.Position.y] = chip;
+        chipsFieldComponent.Grid[chipPosition.Position.x, chipPosition.Position.y] = chipEntityIndex;
       }
     }
   }

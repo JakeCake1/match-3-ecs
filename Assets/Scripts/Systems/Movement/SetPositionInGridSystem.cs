@@ -55,27 +55,27 @@ namespace Systems.Movement
       {
         for (int x = 0; x < chipsField.Grid.GetLength(0); x++)
         {
-          if(IsEmptyGridCell(ref chipsField.Grid[x, y]))
+          if(IsEmptyGridCell(chipsField.Grid[x, y]))
             continue;
           
-          if(ChipIsPlaced(ref chipsField.Grid[x, y]))
+          if(ChipIsPlaced(chipsField.Grid[x, y]))
             continue;
           
-          ref GridPositionComponent chipPosition = ref _positionsPool.Get(chipsField.Grid[x,y].EntityIndex);
+          ref GridPositionComponent chipPosition = ref _positionsPool.Get(chipsField.Grid[x,y]);
           
           int targetY = FindLowestNotBusyPositionInGrid(chipPosition, out int targetCellEntityIndex);
-          MarkChipAndPlace(ref chipsField, targetY, chipsField.Grid[x,y].EntityIndex, targetCellEntityIndex);
+          MarkChipAndPlace(ref chipsField, targetY, chipsField.Grid[x,y], targetCellEntityIndex);
         }
       }
       
       bool AllChipsPlaced() => 
         _notPlacedChipsFilter.GetEntitiesCount() == 0;
 
-      bool IsEmptyGridCell(ref ChipComponent chipComponent) => 
-        chipComponent.EntityIndex == -1;
+      bool IsEmptyGridCell(int chipEntityIndex) => 
+        chipEntityIndex == -1;
 
-      bool ChipIsPlaced(ref ChipComponent chipComponent) => 
-        _placedChipsPool.Has(chipComponent.EntityIndex);
+      bool ChipIsPlaced(int chipEntityIndex) => 
+        _placedChipsPool.Has(chipEntityIndex);
     }
 
     private int FindLowestNotBusyPositionInGrid(GridPositionComponent chipPosition, out int targetCellEntityIndex)
@@ -109,9 +109,9 @@ namespace Systems.Movement
       chipPosition.Position = _positionsPool.Get(cellField.Grid[chipPosition.Position.x, y]).Position;
       
       chipsField.Grid[cachedPosition.x, cachedPosition.y] = default;
-      chipsField.Grid[cachedPosition.x, cachedPosition.y].EntityIndex = -1;
+      chipsField.Grid[cachedPosition.x, cachedPosition.y] = -1;
       
-      chipsField.Grid[chipPosition.Position.x, chipPosition.Position.y] = chip;
+      chipsField.Grid[chipPosition.Position.x, chipPosition.Position.y] = freeChipEntityIndex;
       
       chip.ParentCellEntityIndex = cellEntityIndex;
 

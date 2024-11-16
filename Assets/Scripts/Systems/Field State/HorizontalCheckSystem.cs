@@ -5,7 +5,7 @@ namespace Systems.Field_State
 {
   public sealed class HorizontalCheckSystem : LineCheckSystem
   {
-    protected override List<Queue<ChipComponent>> FindLineCombinations(ref ChipComponent[,] chips)
+    protected override List<Queue<ChipComponent>> FindLineCombinations(ref int[,] chips)
     {
       List<Queue<ChipComponent>> combinations = new List<Queue<ChipComponent>>();
       Queue<ChipComponent> chipsCombo = new Queue<ChipComponent>();

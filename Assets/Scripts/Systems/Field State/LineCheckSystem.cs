@@ -11,12 +11,14 @@ namespace Systems.Field_State
     private EcsWorld _world;
     
     private EcsPool<ChipsFieldComponent> _chipsFieldPool;
+    private EcsPool<ChipComponent> _chipsPool;
 
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
 
       _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
+      _chipsPool = _world.GetPool<ChipComponent>();
     }
 
     public void Run(IEcsSystems systems)
@@ -27,19 +29,25 @@ namespace Systems.Field_State
       AddCombinationsToMergeBuffer(combinations);
     }
 
-    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ref ChipComponent[,] chips);
+    protected abstract List<Queue<ChipComponent>> FindLineCombinations(ref int[,] chips);
     
-    protected void CheckChipForSequence(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
+    protected void CheckChipForSequence(int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
     {
       if (chipsCombo.Count == 0)
         AddChipToQueue(chips, chipsCombo, x, y);
       else
       {
-        if (chipsCombo.Peek().Type != chips[x, y].Type) 
+        if (ChipIsNotInitialized(chips[x, y]) || NextChipInLineIsDifferent(chips[x, y]))
           AddQueueToCombinationList(chipsCombo, combinations);
 
         AddChipToQueue(chips, chipsCombo, x, y);
       }
+
+      bool ChipIsNotInitialized(int chipEntityIndex) => 
+        chipEntityIndex == -1;
+
+      bool NextChipInLineIsDifferent(int chipEntityIndex) => 
+        chipsCombo.Peek().Type != _chipsPool.Get(chipEntityIndex).Type;
     }
 
     protected void AddQueueToCombinationList(Queue<ChipComponent> chipsCombo, List<Queue<ChipComponent>> combinations)
@@ -50,26 +58,32 @@ namespace Systems.Field_State
       chipsCombo.Clear();
     }
 
-    private void AddChipToQueue(ChipComponent[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
+    private void AddChipToQueue(int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
     {
-      if(chips[x, y].EntityIndex == -1)
+      if(ChipIsNotInitialized(chips[x, y]))
         return;
       
-      chipsCombo.Enqueue(chips[x, y]);
+      chipsCombo.Enqueue(_chipsPool.Get(chips[x, y]));
+
+      bool ChipIsNotInitialized(int chipEntityIndex) => 
+        chipEntityIndex == -1;
     }
 
     private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
     {
-      foreach (Queue<ChipComponent> combination in combinations)
-      {
-        int mergeCommandEntity = _world.NewEntity();
-        ref MergeCommandComponent mergeCommand = ref _world.GetPool<MergeCommandComponent>().Add(mergeCommandEntity);
-        
-        mergeCommand.CommandEntityIndex = mergeCommandEntity;
-        mergeCommand.Chips = combination;
-      }
+      foreach (Queue<ChipComponent> combination in combinations) 
+        CreateMergeCommand(combination);
 
       combinations.Clear();
+    }
+
+    private void CreateMergeCommand(Queue<ChipComponent> combination)
+    {
+      int mergeCommandEntity = _world.NewEntity();
+      ref MergeCommandComponent mergeCommand = ref _world.GetPool<MergeCommandComponent>().Add(mergeCommandEntity);
+        
+      mergeCommand.CommandEntityIndex = mergeCommandEntity;
+      mergeCommand.Chips = combination;
     }
   }
 }

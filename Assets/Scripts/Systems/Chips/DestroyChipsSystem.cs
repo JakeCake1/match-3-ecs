@@ -76,7 +76,7 @@ namespace Systems.Chips
       int positionY = gridPosition.Position.y;
         
       chipsField.Grid[positionX, positionY] = default;
-      chipsField.Grid[positionX, positionY].EntityIndex = -1;
+      chipsField.Grid[positionX, positionY] = -1;
     }
 
     private void DestroyChip(int chipEntityIndex) => 
