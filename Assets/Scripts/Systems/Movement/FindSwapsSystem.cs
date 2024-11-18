@@ -25,7 +25,7 @@ namespace Systems.Movement
 
     private Vector2 _fieldMinimalCorner;
     private Vector2 _fieldMaximumCorner;
-    private Vector2Int _fieldModifier;
+    private Vector2Int _fieldDensityModifier;
 
     public FindSwapsSystem(UnityEngine.Camera camera) =>
       _camera = camera;
@@ -97,7 +97,7 @@ namespace Systems.Movement
 
         Vector2 fingerDownPosition = _camera.ScreenToWorldPoint(swapCommand.Ray.Item1);
 
-        Vector2 position = (fingerDownPosition - _fieldMinimalCorner) / (_fieldMaximumCorner - _fieldMinimalCorner) * _fieldModifier;
+        Vector2 position = (fingerDownPosition - _fieldMinimalCorner) / (_fieldMaximumCorner - _fieldMinimalCorner) * _fieldDensityModifier;
         Vector2Int targetPosition = new Vector2Int(Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y));
 
         if (IsPositionInsideField(targetPosition))
@@ -122,7 +122,7 @@ namespace Systems.Movement
         chipEntityIndex1 != -1 && chipEntityIndex2 != -1;
 
       bool IsPositionInsideField(Vector2Int gridPosition) =>
-        gridPosition.x >= 0 && gridPosition.x <= _fieldModifier.x && gridPosition.y >= 0 && gridPosition.y <= _fieldModifier.y;
+        gridPosition.x >= 0 && gridPosition.x <= _fieldDensityModifier.x && gridPosition.y >= 0 && gridPosition.y <= _fieldDensityModifier.y;
     }
 
     private void PrepareFieldBorders(ref CellFieldComponent cellsFieldComponent)
@@ -130,10 +130,10 @@ namespace Systems.Movement
       int width = cellsFieldComponent.Grid.GetLength(0);
       int height = cellsFieldComponent.Grid.GetLength(1);
 
-      _fieldModifier = new Vector2Int(width - 1, height - 1);
+      _fieldDensityModifier = new Vector2Int(width - 1, height - 1);
 
       int leftDownChipEntityIndex = cellsFieldComponent.Grid[0, 0];
-      int upperRightChipEntityIndex = cellsFieldComponent.Grid[_fieldModifier.x, _fieldModifier.y];
+      int upperRightChipEntityIndex = cellsFieldComponent.Grid[_fieldDensityModifier.x, _fieldDensityModifier.y];
 
       _fieldMinimalCorner = _cellViewRefsPool.Get(leftDownChipEntityIndex).CellView.GetPosition();
       _fieldMaximumCorner = _cellViewRefsPool.Get(upperRightChipEntityIndex).CellView.GetPosition();
