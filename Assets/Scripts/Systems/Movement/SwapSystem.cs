@@ -49,26 +49,30 @@ namespace Systems.Movement
     
     private void Swap(int firstChipEntityIndex, int secondChipEntityIndex, bool isUserInitiated)
     {     
-      ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];
-
-      ref GridPositionComponent firstChipPosition = ref _gridPositionsPool.Get(firstChipEntityIndex);
-      ref GridPositionComponent secondChipPosition = ref _gridPositionsPool.Get(secondChipEntityIndex);
-      
       ref ChipComponent firstChip = ref _chipComponentPool.Get(firstChipEntityIndex);
       ref ChipComponent secondChip = ref _chipComponentPool.Get(secondChipEntityIndex);
-      
-      (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
-      (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
-      
-      (chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y], chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y])
-        = (chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y], chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y]);
-      
+
+      SwapChips(ref firstChip, ref secondChip);
       DetachChips(firstChip, secondChip);
       
       if(isUserInitiated)
         MarkAsCheckNeeded(firstChip, secondChip);
     }
 
+    private void SwapChips(ref ChipComponent firstChip, ref ChipComponent secondChip)
+    {   
+      ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];
+
+      ref GridPositionComponent firstChipPosition = ref _gridPositionsPool.Get(firstChip.EntityIndex);
+      ref GridPositionComponent secondChipPosition = ref _gridPositionsPool.Get(secondChip.EntityIndex);
+
+      (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
+      (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
+      
+      (chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y], chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y])
+        = (chipsField.Grid[secondChipPosition.Position.x, secondChipPosition.Position.y], chipsField.Grid[firstChipPosition.Position.x, firstChipPosition.Position.y]);
+    }
+    
     private void DetachChips(ChipComponent firstChip, ChipComponent secondChip)
     {
       _busyCellsPool.Del(firstChip.ParentCellEntityIndex);
