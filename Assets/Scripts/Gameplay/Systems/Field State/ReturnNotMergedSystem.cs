@@ -1,0 +1,59 @@
+using Gameplay.Components.Chips;
+using Gameplay.Components.Chips.Markers;
+using Gameplay.Components.Command;
+using Leopotam.EcsLite;
+
+namespace Gameplay.Systems.Field_State
+{
+  public sealed class ReturnNotMergedSystem : IEcsInitSystem, IEcsRunSystem
+  {
+    private EcsWorld _world;
+    
+    private EcsFilter _chipsInCheckProcessFilter;
+    
+    private EcsPool<ChipInCheckComponent> _chipsInCheckProcessPool;
+    private EcsPool<SwapCombinationComponent> _swapCombinationsPool;
+
+    public void Init(IEcsSystems systems)
+    {
+      _world = systems.GetWorld();
+
+      _chipsInCheckProcessFilter = _world.Filter<ChipComponent>().Inc<ChipInCheckComponent>().End();
+
+      _chipsInCheckProcessPool = _world.GetPool<ChipInCheckComponent>();
+      _swapCombinationsPool = _world.GetPool<SwapCombinationComponent>();
+    }
+
+    public void Run(IEcsSystems systems)
+    {
+      foreach (int chipEntityIndex in _chipsInCheckProcessFilter)
+      {
+        if(ChipNotInProcessPool(chipEntityIndex))
+          continue;
+        
+        CreateSwapCombination(chipEntityIndex);
+        RemoveCheckFlagsForChips(chipEntityIndex);
+      }
+      
+      bool ChipNotInProcessPool(int chipEntityIndex) => 
+        !_chipsInCheckProcessPool.Has(chipEntityIndex);
+    }
+
+    private void CreateSwapCombination(int chipEntityIndex)
+    {
+      ref ChipInCheckComponent chipInCheckChip = ref _chipsInCheckProcessPool.Get(chipEntityIndex);
+
+      int swapCombinationEntity = _world.NewEntity();
+      ref SwapCombinationComponent swapCombination = ref _swapCombinationsPool.Add(swapCombinationEntity);
+        
+      swapCombination.Pair = (chipEntityIndex, chipInCheckChip.RelatedChip);
+      swapCombination.IsUserInitiated = false;
+    }
+
+    private void RemoveCheckFlagsForChips(int chipEntityIndex)
+    {
+      _chipsInCheckProcessPool.Del(_chipsInCheckProcessPool.Get(chipEntityIndex).RelatedChip);
+      _chipsInCheckProcessPool.Del(chipEntityIndex);
+    }
+  }
+}
