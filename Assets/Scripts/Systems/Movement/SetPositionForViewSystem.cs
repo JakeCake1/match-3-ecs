@@ -30,13 +30,17 @@ namespace Systems.Movement
     {
       foreach (int viewEntityIndex in _viewsNeedsUpdatePositionFilter)
       {
-        ref ChipViewRefComponent chipViewRefComponent = ref _viewsRefsPool.Get(viewEntityIndex);
-        ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Get(viewEntityIndex);
-        
-        chipViewRefComponent.ChipView.SetPosition(moveViewCommand.NewViewPosition);
-        
+        ModifyViewPosition(viewEntityIndex);
         _moveViewsCommandsPool.Del(viewEntityIndex);
       }
+    }
+
+    private void ModifyViewPosition(int viewEntityIndex)
+    {
+      ref ChipViewRefComponent chipViewRefComponent = ref _viewsRefsPool.Get(viewEntityIndex);
+      ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Get(viewEntityIndex);
+        
+      chipViewRefComponent.ChipView.SetPosition(moveViewCommand.NewViewPosition);
     }
   }
 }
