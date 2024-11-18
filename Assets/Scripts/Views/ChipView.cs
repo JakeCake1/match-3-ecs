@@ -31,8 +31,14 @@ namespace Views
     public void SetPosition(Vector2Int chipPosition) => 
       transform.position = chipPosition + _fieldDataOffset * chipPosition;
 
+    public Vector2 GetPosition() =>
+      transform.position;
+    
     public void SetType(int chipType) => 
       SpriteRenderer.color = _chipsColors[chipType];
+
+    public float GetSize() => 
+      (transform.localScale.x + transform.localScale.y + transform.localScale.z)/3;
 
     public void Destroy() => 
       Destroy(gameObject);
