@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Components.Cell.Markers;
 using Components.Chips;
 using Components.Chips.Markers;
@@ -24,7 +23,7 @@ namespace Systems.Movement
     private EcsPool<MoveViewCommand> _moveViewsCommandsPool;
     private EcsPool<CellFieldComponent> _fieldPool;
     private EcsPool<ChipsFieldComponent> _chipsFieldPool;
-    
+
     public void Init(IEcsSystems systems)
     {
       _world = systems.GetWorld();
@@ -48,80 +47,104 @@ namespace Systems.Movement
     {
       if (AllChipsPlaced())
         return;
-      
+
       ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];
-      
+
       for (int y = 0; y < chipsField.Grid.GetLength(1); y++)
       {
         for (int x = 0; x < chipsField.Grid.GetLength(0); x++)
         {
-          if(IsEmptyGridCell(chipsField.Grid[x, y]))
+          if (IsEmptyGridCell(chipsField.Grid[x, y]))
             continue;
-          
-          if(ChipIsPlaced(chipsField.Grid[x, y]))
+
+          if (ChipIsPlaced(chipsField.Grid[x, y]))
             continue;
-          
-          ref GridPositionComponent chipPosition = ref _positionsPool.Get(chipsField.Grid[x,y]);
-          
+
+          ref GridPositionComponent chipPosition = ref _positionsPool.Get(chipsField.Grid[x, y]);
+
           int targetY = FindLowestNotBusyPositionInGrid(chipPosition, out int targetCellEntityIndex);
-          MarkChipAndPlace(ref chipsField, targetY, chipsField.Grid[x,y], targetCellEntityIndex);
+          MarkChipAndPlace(ref chipsField, targetY, chipsField.Grid[x, y], targetCellEntityIndex);
         }
       }
-      
-      bool AllChipsPlaced() => 
+
+      bool AllChipsPlaced() =>
         _notPlacedChipsFilter.GetEntitiesCount() == 0;
 
-      bool IsEmptyGridCell(int chipEntityIndex) => 
+      bool IsEmptyGridCell(int chipEntityIndex) =>
         chipEntityIndex == -1;
 
-      bool ChipIsPlaced(int chipEntityIndex) => 
+      bool ChipIsPlaced(int chipEntityIndex) =>
         _placedChipsPool.Has(chipEntityIndex);
     }
 
     private int FindLowestNotBusyPositionInGrid(GridPositionComponent chipPosition, out int targetCellEntityIndex)
-    { 
+    {
       ref CellFieldComponent cellField = ref _fieldPool.GetRawDenseItems()[1];
 
       int targetY = 0;
       targetCellEntityIndex = 0;
 
-      int startY = Math.Clamp(chipPosition.Position.y, 0, cellField.Grid.GetLength(1) - 1);
-
-      for (int y = startY; y >= 0; y--)
-      {
-        if (_busyCellsPool.Has(cellField.Grid[chipPosition.Position.x, y]))
-          break;
-
-        targetCellEntityIndex = cellField.Grid[chipPosition.Position.x, y];
-        targetY = y;
-      }
+      targetY = IterateFieldFromTopToBottom(ref cellField, ref targetCellEntityIndex);
 
       return targetY;
+
+      int IterateFieldFromTopToBottom(ref CellFieldComponent cellField, ref int targetCellEntityIndex)
+      {
+        int startY = Math.Clamp(chipPosition.Position.y, 0, cellField.Grid.GetLength(1) - 1);
+
+        for (int y = startY; y >= 0; y--)
+        {
+          if (_busyCellsPool.Has(cellField.Grid[chipPosition.Position.x, y]))
+            break;
+
+          targetCellEntityIndex = cellField.Grid[chipPosition.Position.x, y];
+          targetY = y;
+        }
+
+        return targetY;
+      }
     }
 
     private void MarkChipAndPlace(ref ChipsFieldComponent chipsField, int y, int freeChipEntityIndex, int cellEntityIndex)
     {
       ref GridPositionComponent chipPosition = ref _positionsPool.Get(freeChipEntityIndex);
       ref ChipComponent chip = ref _chipsPool.Get(freeChipEntityIndex);
-      ref CellFieldComponent cellField = ref _fieldPool.GetRawDenseItems()[1];
 
-      Vector2Int cachedPosition = chipPosition.Position;
-      chipPosition.Position = _positionsPool.Get(cellField.Grid[chipPosition.Position.x, y]).Position;
-      
-      chipsField.Grid[cachedPosition.x, cachedPosition.y] = default;
-      chipsField.Grid[cachedPosition.x, cachedPosition.y] = -1;
-      
-      chipsField.Grid[chipPosition.Position.x, chipPosition.Position.y] = freeChipEntityIndex;
-      
-      chip.ParentCellEntityIndex = cellEntityIndex;
+      SetupChip(ref chip, ref chipPosition);
+      ModifyChipField(ref chipPosition, ref chipsField);
+      CreateMoveCommandForChipView(ref chipPosition);
+      MarkCellAsBusy();
 
-      ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Add(freeChipEntityIndex);
-      moveViewCommand.NewViewPosition = chipPosition.Position;
-      
-      ref BusyCellComponent busyCellComponent = ref _busyCellsPool.Add(cellEntityIndex);
-      busyCellComponent.ChipEntityIndex = freeChipEntityIndex;
-      
       _placedChipsPool.Add(freeChipEntityIndex);
+
+      void SetupChip(ref ChipComponent chip, ref GridPositionComponent chipPosition)
+      {
+        ref CellFieldComponent cellField = ref _fieldPool.GetRawDenseItems()[1];
+
+        chip.ParentCellEntityIndex = cellEntityIndex;
+        chipPosition.Position = _positionsPool.Get(cellField.Grid[chipPosition.Position.x, y]).Position;
+      }
+
+      void ModifyChipField(ref GridPositionComponent chipPosition, ref ChipsFieldComponent chipsField)
+      {
+        Vector2Int cachedPosition = chipPosition.Position;
+
+        chipsField.Grid[cachedPosition.x, cachedPosition.y] = default;
+        chipsField.Grid[cachedPosition.x, cachedPosition.y] = -1;
+        chipsField.Grid[chipPosition.Position.x, chipPosition.Position.y] = freeChipEntityIndex;
+      }
+
+      void CreateMoveCommandForChipView(ref GridPositionComponent chipPosition)
+      {
+        ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Add(freeChipEntityIndex);
+        moveViewCommand.NewViewPosition = chipPosition.Position;
+      }
+
+      void MarkCellAsBusy()
+      {
+        ref BusyCellComponent busyCellComponent = ref _busyCellsPool.Add(cellEntityIndex);
+        busyCellComponent.ChipEntityIndex = freeChipEntityIndex;
+      }
     }
   }
 }
