@@ -1,11 +1,9 @@
-using System;
-using Components.Chips;
+using Components.Cell;
 using Components.Command;
 using Components.Common;
 using Components.Field;
 using Leopotam.EcsLite;
 using UnityEngine;
-using Views;
 
 namespace Systems.Movement
 {
@@ -14,16 +12,20 @@ namespace Systems.Movement
     private EcsWorld _world;
 
     private EcsFilter _swapCommandsFilter;
-    private EcsFilter _chipViewsRefsFilter;
 
     private EcsPool<SwapCommandComponent> _swapCommandsPool;
     private EcsPool<SwapCombinationComponent> _swapCombinationsPool;
-    private EcsPool<ChipViewRefComponent> _chipViewsRefsPool;
-    
+    private EcsPool<CellViewRefComponent> _cellViewRefsPool;
+
+    private EcsPool<CellFieldComponent> _cellFieldPool;
     private EcsPool<ChipsFieldComponent> _chipsFieldPool;
     private EcsPool<GridPositionComponent> _gridPositionsPool;
 
     private readonly UnityEngine.Camera _camera;
+
+    private Vector2 _fieldMinimalCorner;
+    private Vector2 _fieldMaximumCorner;
+    private Vector2Int _fieldModifier;
 
     public FindSwapsSystem(UnityEngine.Camera camera) =>
       _camera = camera;
@@ -33,14 +35,17 @@ namespace Systems.Movement
       _world = systems.GetWorld();
 
       _swapCommandsFilter = _world.Filter<SwapCommandComponent>().End();
-      _chipViewsRefsFilter = _world.Filter<ChipViewRefComponent>().End();
 
       _swapCommandsPool = _world.GetPool<SwapCommandComponent>();
       _swapCombinationsPool = _world.GetPool<SwapCombinationComponent>();
-      _chipViewsRefsPool = _world.GetPool<ChipViewRefComponent>();
-      
+
+      _cellViewRefsPool = _world.GetPool<CellViewRefComponent>();
+
       _gridPositionsPool = _world.GetPool<GridPositionComponent>();
       _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
+      _cellFieldPool = _world.GetPool<CellFieldComponent>();
+
+      PrepareFieldBorders(ref _cellFieldPool.GetRawDenseItems()[1]);
     }
 
     public void Run(IEcsSystems systems)
@@ -80,7 +85,7 @@ namespace Systems.Movement
     }
 
     private bool FindSwapChipsEntitiesIndexes(ref SwapCommandComponent swapCommand, out int chipEntityIndex1, out int chipEntityIndex2)
-    {     
+    {
       FindFirstChip(out chipEntityIndex1, ref swapCommand);
       FindSecondChip(out chipEntityIndex2, ref chipEntityIndex1, ref swapCommand);
 
@@ -91,13 +96,12 @@ namespace Systems.Movement
         firstChipEntityIndex = -1;
 
         Vector2 fingerDownPosition = _camera.ScreenToWorldPoint(swapCommand.Ray.Item1);
-        Vector2 closestPosition = Vector2.positiveInfinity;
 
-        foreach (int chipEntityIndex in _chipViewsRefsFilter)
-        {
-          ref ChipViewRefComponent chipViewRefComponent = ref _chipViewsRefsPool.Get(chipEntityIndex);
-          FindClosestChip(chipEntityIndex, chipViewRefComponent.ChipView, fingerDownPosition, ref firstChipEntityIndex, ref closestPosition);
-        }
+        Vector2 position = (fingerDownPosition - _fieldMinimalCorner) / (_fieldMaximumCorner - _fieldMinimalCorner) * _fieldModifier;
+        Vector2Int targetPosition = new Vector2Int(Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y));
+
+        if (IsPositionInsideField(targetPosition))
+          firstChipEntityIndex = _chipsFieldPool.GetRawDenseItems()[1].Grid[targetPosition.x, targetPosition.y];
       }
 
       void FindSecondChip(out int secondChipEntityIndex, ref int firstChipIndex, ref SwapCommandComponent swapCommand)
@@ -106,43 +110,33 @@ namespace Systems.Movement
 
         if (firstChipIndex == -1)
           return;
-        
+
         ref GridPositionComponent gridPosition = ref _gridPositionsPool.Get(firstChipIndex);
         Vector2Int neighbourPosition = gridPosition.Position + swapCommand.Ray.Item2;
 
-        try
-        {
+        if (IsPositionInsideField(neighbourPosition))
           secondChipEntityIndex = _chipsFieldPool.GetRawDenseItems()[1].Grid[neighbourPosition.x, neighbourPosition.y];
-        }
-        catch (IndexOutOfRangeException)
-        {
-          Debug.Log("Ooops, reached borders");
-        }
       }
 
-      bool IsBothChipsFound(ref int chipEntityIndex1, ref int chipEntityIndex2) => 
+      bool IsBothChipsFound(ref int chipEntityIndex1, ref int chipEntityIndex2) =>
         chipEntityIndex1 != -1 && chipEntityIndex2 != -1;
+
+      bool IsPositionInsideField(Vector2Int gridPosition) =>
+        gridPosition.x >= 0 && gridPosition.x <= _fieldModifier.x && gridPosition.y >= 0 && gridPosition.y <= _fieldModifier.y;
     }
-    
-    private void FindClosestChip(int chipEntityIndex, ChipView chipView, Vector2 fingerDownPosition, ref int targetChipEntityIndex,
-      ref Vector2 targetClosestPosition)
+
+    private void PrepareFieldBorders(ref CellFieldComponent cellsFieldComponent)
     {
-      Vector2 position = chipView.GetPosition();
-     
-      if(IsTouchOutOfChipBorders())
-        return;
-      
-      if (ViewIsMoreFarThanPreviousView(ref targetClosestPosition))
-        return;
+      int width = cellsFieldComponent.Grid.GetLength(0);
+      int height = cellsFieldComponent.Grid.GetLength(1);
 
-      targetChipEntityIndex = chipEntityIndex;
-      targetClosestPosition = position;
+      _fieldModifier = new Vector2Int(width - 1, height - 1);
 
-      bool IsTouchOutOfChipBorders() => 
-        (fingerDownPosition - position).magnitude > chipView.GetSize();
-      
-      bool ViewIsMoreFarThanPreviousView(ref Vector2 targetClosestPosition) => 
-        (fingerDownPosition - position).sqrMagnitude >= (fingerDownPosition - targetClosestPosition).sqrMagnitude;
+      int leftDownChipEntityIndex = cellsFieldComponent.Grid[0, 0];
+      int upperRightChipEntityIndex = cellsFieldComponent.Grid[_fieldModifier.x, _fieldModifier.y];
+
+      _fieldMinimalCorner = _cellViewRefsPool.Get(leftDownChipEntityIndex).CellView.GetPosition();
+      _fieldMaximumCorner = _cellViewRefsPool.Get(upperRightChipEntityIndex).CellView.GetPosition();
     }
   }
 }
