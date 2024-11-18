@@ -51,6 +51,7 @@ internal sealed class EcsStartup : MonoBehaviour
     _world = new EcsWorld();
 
     _systems = new EcsSystems(_world);
+    
     _systems
       .Add(new CreateFieldInitSystem(_fieldData))
       .Add(new CreateCellViewSystem(_cellViewPrefab, _fieldData))

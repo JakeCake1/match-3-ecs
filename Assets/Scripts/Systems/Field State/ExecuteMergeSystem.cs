@@ -63,8 +63,8 @@ namespace Systems.Field_State
       {
         ref ChipInCheckComponent chipInCheck = ref _chipsInCheckProcessPool.Get(mergeCommandChip.EntityIndex);
 
-        if (_chipsInCheckProcessPool.Has(chipInCheck.RelatedChip.EntityIndex))
-          _chipsInCheckProcessPool.Del(chipInCheck.RelatedChip.EntityIndex);
+        if (_chipsInCheckProcessPool.Has(chipInCheck.RelatedChip))
+          _chipsInCheckProcessPool.Del(chipInCheck.RelatedChip);
 
         _chipsInCheckProcessPool.Del(mergeCommandChip.EntityIndex);
       }

@@ -20,6 +20,7 @@ namespace Systems.Movement
     private EcsPool<PlacedChipComponent> _placedChipsPool;
     private EcsPool<ChipInCheckComponent> _chipsInCheckPool;
     private EcsPool<ChipsFieldComponent> _chipsFieldPool;
+    private EcsPool<ChipComponent> _chipComponentPool;
 
     public void Init(IEcsSystems systems)
     {
@@ -32,7 +33,7 @@ namespace Systems.Movement
       _busyCellsPool = _world.GetPool<BusyCellComponent>();
       _placedChipsPool = _world.GetPool<PlacedChipComponent>();
       _chipsInCheckPool = _world.GetPool<ChipInCheckComponent>();
-      
+      _chipComponentPool = _world.GetPool<ChipComponent>();
       _chipsFieldPool = _world.GetPool<ChipsFieldComponent>();
     }
 
@@ -46,12 +47,15 @@ namespace Systems.Movement
       }
     }
     
-    private void Swap(ChipComponent firstChip, ChipComponent secondChip, bool isUserInitiated)
+    private void Swap(int firstChipEntityIndex, int secondChipEntityIndex, bool isUserInitiated)
     {     
       ref ChipsFieldComponent chipsField = ref _chipsFieldPool.GetRawDenseItems()[1];
 
-      ref GridPositionComponent firstChipPosition = ref _gridPositionsPool.Get(firstChip.EntityIndex);
-      ref GridPositionComponent secondChipPosition = ref _gridPositionsPool.Get(secondChip.EntityIndex);
+      ref GridPositionComponent firstChipPosition = ref _gridPositionsPool.Get(firstChipEntityIndex);
+      ref GridPositionComponent secondChipPosition = ref _gridPositionsPool.Get(secondChipEntityIndex);
+      
+      ref ChipComponent firstChip = ref _chipComponentPool.Get(firstChipEntityIndex);
+      ref ChipComponent secondChip = ref _chipComponentPool.Get(secondChipEntityIndex);
       
       (firstChip.ParentCellEntityIndex, secondChip.ParentCellEntityIndex) = (secondChip.ParentCellEntityIndex, firstChip.ParentCellEntityIndex);
       (firstChipPosition.Position, secondChipPosition.Position) = (secondChipPosition.Position, firstChipPosition.Position);
@@ -77,10 +81,10 @@ namespace Systems.Movement
     private void MarkAsCheckNeeded(ChipComponent firstChip, ChipComponent secondChip)
     {
       ref ChipInCheckComponent chipInCheckFirstChip = ref _chipsInCheckPool.Add(firstChip.EntityIndex);
-      chipInCheckFirstChip.RelatedChip = secondChip;
+      chipInCheckFirstChip.RelatedChip = secondChip.EntityIndex;
       
       ref ChipInCheckComponent chipInCheckSecond = ref _chipsInCheckPool.Add(secondChip.EntityIndex);
-      chipInCheckSecond.RelatedChip = firstChip;
+      chipInCheckSecond.RelatedChip = firstChip.EntityIndex;
     }
   }
 }

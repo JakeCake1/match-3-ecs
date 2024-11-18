@@ -11,7 +11,6 @@ namespace Systems.Field_State
     
     private EcsFilter _chipsInCheckProcessFilter;
     
-    private EcsPool<ChipComponent> _chipsPool;
     private EcsPool<ChipInCheckComponent> _chipsInCheckProcessPool;
     private EcsPool<SwapCombinationComponent> _swapCombinationsPool;
 
@@ -21,7 +20,6 @@ namespace Systems.Field_State
 
       _chipsInCheckProcessFilter = _world.Filter<ChipComponent>().Inc<ChipInCheckComponent>().End();
 
-      _chipsPool = _world.GetPool<ChipComponent>();
       _chipsInCheckProcessPool = _world.GetPool<ChipInCheckComponent>();
       _swapCombinationsPool = _world.GetPool<SwapCombinationComponent>();
     }
@@ -48,12 +46,13 @@ namespace Systems.Field_State
       int swapCombinationEntity = _world.NewEntity();
       ref SwapCombinationComponent swapCombination = ref _swapCombinationsPool.Add(swapCombinationEntity);
         
-      swapCombination.Pair = (_chipsPool.Get(chipEntityIndex), _chipsPool.Get(chipInCheckChip.RelatedChip.EntityIndex));
+      swapCombination.Pair = (chipEntityIndex, chipInCheckChip.RelatedChip);
+      swapCombination.IsUserInitiated = false;
     }
 
     private void RemoveCheckFlagsForChips(int chipEntityIndex)
     {
-      _chipsInCheckProcessPool.Del(_chipsInCheckProcessPool.Get(chipEntityIndex).RelatedChip.EntityIndex);
+      _chipsInCheckProcessPool.Del(_chipsInCheckProcessPool.Get(chipEntityIndex).RelatedChip);
       _chipsInCheckProcessPool.Del(chipEntityIndex);
     }
   }
