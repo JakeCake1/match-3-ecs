@@ -13,7 +13,7 @@ namespace Gameplay.Systems.Field_State
       for (int y = 0; y < chips.GetLength(1); y++)
       {
         for (int x = 0; x < chips.GetLength(0); x++) 
-          CheckChipForSequence(chips, chipsCombo, x, y, combinations);
+          CheckChipForSequence(ref chips, chipsCombo, x, y, combinations);
         
         AddQueueToCombinationList(chipsCombo, combinations);
       }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
-using Cysharp.Threading.Tasks;
 using Leopotam.EcsLite;
 using UniRx;
 
@@ -34,10 +33,6 @@ namespace Application.StateMachine.States
       
       LaunchEcs();
       Observable.EveryUpdate().Subscribe(_ => Update()).AddTo(_disposables);
-
-      await UniTask.Delay(10000);
-      
-      _applicationStateMachine.Enter<EmptyState>();
     }
 
     public void Exit()

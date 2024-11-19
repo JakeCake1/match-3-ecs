@@ -31,20 +31,20 @@ namespace Gameplay.Systems.Field_State
 
     protected abstract List<Queue<ChipComponent>> FindLineCombinations(ref int[,] chips);
     
-    protected void CheckChipForSequence(int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
+    protected void CheckChipForSequence(ref int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y, List<Queue<ChipComponent>> combinations)
     {
       if (chipsCombo.Count == 0)
-        AddChipToQueue(chips, chipsCombo, x, y);
+        AddChipToQueue(ref chips, chipsCombo, x, y);
       else
       {
         if (ChipIsNotInitialized(chips[x, y]) || NextChipInLineIsDifferent(chips[x, y]))
           AddQueueToCombinationList(chipsCombo, combinations);
 
-        AddChipToQueue(chips, chipsCombo, x, y);
+        AddChipToQueue(ref chips, chipsCombo, x, y);
       }
 
       bool ChipIsNotInitialized(int chipEntityIndex) => 
-        chipEntityIndex == -1;
+        chipEntityIndex == -1 || !_chipsPool.Has(chipEntityIndex);
 
       bool NextChipInLineIsDifferent(int chipEntityIndex) => 
         chipsCombo.Peek().Type != _chipsPool.Get(chipEntityIndex).Type;
@@ -58,15 +58,15 @@ namespace Gameplay.Systems.Field_State
       chipsCombo.Clear();
     }
 
-    private void AddChipToQueue(int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
+    private void AddChipToQueue(ref int[,] chips, Queue<ChipComponent> chipsCombo, int x, int y)
     {
       if(ChipIsNotInitialized(chips[x, y]))
         return;
       
       chipsCombo.Enqueue(_chipsPool.Get(chips[x, y]));
-
+      
       bool ChipIsNotInitialized(int chipEntityIndex) => 
-        chipEntityIndex == -1;
+        chipEntityIndex == -1 || !_chipsPool.Has(chipEntityIndex);
     }
 
     private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
