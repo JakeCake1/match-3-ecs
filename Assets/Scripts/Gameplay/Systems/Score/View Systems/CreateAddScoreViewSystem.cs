@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Gameplay.Systems.Score.View_Systems
 {
-  public sealed class CreateAddScoreViewSystem : IEcsInitSystem, IEcsRunSystem
+  public sealed class CreateAddScoreViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
   {
     private readonly AddScoreView _addScoreViewPrefab;
     
@@ -55,6 +55,12 @@ namespace Gameplay.Systems.Score.View_Systems
     {
       ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
       addScoreViewRef.AddScoreView.SetCount(_addedScoresPool.Get(addedScoreEntityIndex).AddedScore);
+    }
+
+    public void Destroy(IEcsSystems systems)
+    {     
+      ref AddScoreViewRefComponent addScoreViewRef = ref _addScoreViewRefsPool.Get(_addScoreViewEntityIndex);
+      Object.Destroy(addScoreViewRef.AddScoreView.gameObject);
     }
   }
 }

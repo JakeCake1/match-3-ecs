@@ -20,7 +20,7 @@ namespace Gameplay.Systems.Chips
     private EcsPool<GridPositionComponent> _gridPositionsPool;
     private EcsPool<ChipViewRefComponent> _chipViewRefsPool;
 
-    private Transform _chipsParent;
+    private GameObject _chipsParent;
 
     public CreateChipsViewsSystem(FieldData fieldData, ChipView chipViewPrefab)
     {
@@ -60,7 +60,7 @@ namespace Gameplay.Systems.Chips
     {
       ref ChipViewRefComponent chipViewRef = ref _chipViewRefsPool.Add(chipEntity);
       
-      var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent).GetComponent<ChipView>();
+      var chipView = Object.Instantiate(_chipViewPrefab, _chipsParent.transform).GetComponent<ChipView>();
 
       SetupChipView();
       AttachViewToChipReference(ref chipViewRef);
@@ -80,7 +80,7 @@ namespace Gameplay.Systems.Chips
     }
 
     private void CreateChipsParentObject() =>
-      _chipsParent = new GameObject(ChipsViewsParentName).transform;
+      _chipsParent = new GameObject(ChipsViewsParentName);
 
     private void DestroyChipsParentObject() =>
       Object.Destroy(_chipsParent);

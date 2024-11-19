@@ -7,12 +7,13 @@ using UnityEngine;
 
 namespace Gameplay.Systems.Score.View_Systems
 {
-  public sealed class CreateScoreViewInitSystem : IEcsInitSystem
+  public sealed class CreateScoreViewInitSystem : IEcsInitSystem, IEcsDestroySystem
   {
     private readonly ScoreView _scoreViewPrefab;
 
     private EcsFilter _scoreViewsNeedCreationFilter;
-    
+    private EcsFilter _scoreCountsFilter;
+
     private EcsPool<ScoreCountViewRefComponent> _scoreCountsPool;
     private EcsPool<NeedCreateScoreCountComponent> _scoreViewsNeedCreationPool;
 
@@ -24,7 +25,8 @@ namespace Gameplay.Systems.Score.View_Systems
       EcsWorld world = systems.GetWorld();
       
       _scoreViewsNeedCreationFilter = world.Filter<ScoreCountComponent>().Inc<NeedCreateScoreCountComponent>().End();
-
+      _scoreCountsFilter = world.Filter<ScoreCountViewRefComponent>().End();
+      
       _scoreCountsPool = world.GetPool<ScoreCountViewRefComponent>();
       _scoreViewsNeedCreationPool = world.GetPool<NeedCreateScoreCountComponent>();
 
@@ -44,6 +46,12 @@ namespace Gameplay.Systems.Score.View_Systems
     {
       ref ScoreCountViewRefComponent scoreCountViewRef = ref _scoreCountsPool.Add(scoreCountEntityIndex);
       scoreCountViewRef.ScoreView = Object.Instantiate(_scoreViewPrefab.gameObject).GetComponent<ScoreView>();
+    }
+
+    public void Destroy(IEcsSystems systems)
+    {
+      foreach (int scoreCountIndexEntity in _scoreCountsFilter) 
+        Object.Destroy(_scoreCountsPool.Get(scoreCountIndexEntity).ScoreView.gameObject);
     }
   }
 }

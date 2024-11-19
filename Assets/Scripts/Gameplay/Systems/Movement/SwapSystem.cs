@@ -84,11 +84,17 @@ namespace Gameplay.Systems.Movement
 
     private void MarkAsCheckNeeded(ChipComponent firstChip, ChipComponent secondChip)
     {
-      ref ChipInCheckComponent chipInCheckFirstChip = ref _chipsInCheckPool.Add(firstChip.EntityIndex);
-      chipInCheckFirstChip.RelatedChip = secondChip.EntityIndex;
-      
-      ref ChipInCheckComponent chipInCheckSecond = ref _chipsInCheckPool.Add(secondChip.EntityIndex);
-      chipInCheckSecond.RelatedChip = firstChip.EntityIndex;
+      if (!_chipsInCheckPool.Has(firstChip.EntityIndex))
+      {
+        ref ChipInCheckComponent chipInCheckFirstChip = ref _chipsInCheckPool.Add(firstChip.EntityIndex);
+        chipInCheckFirstChip.RelatedChip = secondChip.EntityIndex;
+      }
+
+      if (!_chipsInCheckPool.Has(secondChip.EntityIndex))
+      {
+        ref ChipInCheckComponent chipInCheckSecond = ref _chipsInCheckPool.Add(secondChip.EntityIndex);
+        chipInCheckSecond.RelatedChip = firstChip.EntityIndex;
+      }
     }
   }
 }
