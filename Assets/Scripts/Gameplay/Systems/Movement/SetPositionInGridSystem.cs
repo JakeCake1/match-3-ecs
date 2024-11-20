@@ -143,7 +143,6 @@ namespace Gameplay.Systems.Movement
       void MarkCellAsBusy()
       {
         ref BusyCellComponent busyCellComponent = ref _busyCellsPool.Add(cellEntityIndex);
-        busyCellComponent.ChipEntityIndex = freeChipEntityIndex;
       }
     }
   }

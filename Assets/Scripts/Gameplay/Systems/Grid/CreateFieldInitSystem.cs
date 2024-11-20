@@ -65,7 +65,7 @@ namespace Gameplay.Systems.Grid
     {
       int cellEntityIndex = world.NewEntity();
 
-      AddCellComponent();
+      AddCellComponent(world, cellEntityIndex);
       AddGridPositionComponent();
 
       return cellEntityIndex;
@@ -75,12 +75,9 @@ namespace Gameplay.Systems.Grid
         ref GridPositionComponent cellGridPosition = ref _gridPositionsPool.Add(cellEntityIndex);
         cellGridPosition.Position = new Vector2Int(x, y);
       }
-
-      void AddCellComponent()
-      {
-        ref CellComponent cellComponent = ref world.GetPool<CellComponent>().Add(cellEntityIndex);
-        cellComponent.EntityIndex = cellEntityIndex;
-      }
     }
+
+    private void AddCellComponent(EcsWorld world, int cellEntityIndex) => 
+      world.GetPool<CellComponent>().Add(cellEntityIndex);
   }
 }
