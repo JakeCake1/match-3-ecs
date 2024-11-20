@@ -41,6 +41,8 @@ namespace Gameplay.Systems.Movement
       ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Get(viewEntityIndex);
         
       chipViewRefComponent.ChipView.SetPosition(moveViewCommand.NewViewPosition);
+      
+      _moveViewsCommandsPool.Del(viewEntityIndex);
     }
   }
 }

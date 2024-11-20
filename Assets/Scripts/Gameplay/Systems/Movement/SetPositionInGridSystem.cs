@@ -140,10 +140,8 @@ namespace Gameplay.Systems.Movement
         moveViewCommand.NewViewPosition = chipPosition.Position;
       }
 
-      void MarkCellAsBusy()
-      {
-        ref BusyCellComponent busyCellComponent = ref _busyCellsPool.Add(cellEntityIndex);
-      }
+      void MarkCellAsBusy() => 
+        _busyCellsPool.Add(cellEntityIndex);
     }
   }
 }
