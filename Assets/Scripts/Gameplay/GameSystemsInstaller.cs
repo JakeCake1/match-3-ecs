@@ -1,3 +1,4 @@
+using Gameplay.Systems.Animation;
 using Gameplay.Systems.Camera;
 using Gameplay.Systems.Chips;
 using Gameplay.Systems.Control;
@@ -27,7 +28,7 @@ namespace Gameplay
       builder.Register<IEcsSystem, FindSwapsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, SwapSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, SetPositionInGridSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, SetPositionForViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, AnimatedMoveViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, RechargeInjectorsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyChipsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyChipsViewsSystem>(Lifetime.Scoped);
@@ -37,6 +38,7 @@ namespace Gameplay
       builder.Register<IEcsSystem, CombineCommandsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, ExecuteMergeSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, ReturnNotMergedSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, AnimationExecutionSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, ControlSystem>(Lifetime.Scoped);
 

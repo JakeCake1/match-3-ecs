@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Gameplay.Views
@@ -40,7 +42,19 @@ namespace Gameplay.Views
     public float GetSize() => 
       (transform.localScale.x + transform.localScale.y + transform.localScale.z)/3;
 
-    public void Destroy() => 
-      Destroy(gameObject);
+    public Tween Destroy()
+    {
+      return transform.DOScale(0, .3f)
+        .SetEase(Ease.Linear)
+        .SetAutoKill()
+        .OnComplete(() => Destroy(gameObject));
+    }
+
+    public Tween AnimateToPosition(Vector2Int chipPosition)
+    {
+      return transform.DOMove(chipPosition + _fieldDataOffset * chipPosition, .2f)
+        .SetEase(Ease.Linear)
+        .SetAutoKill();
+    }
   }
 }
