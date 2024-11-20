@@ -9,7 +9,6 @@ namespace Gameplay.Services
   public sealed class ApplicationDataInstaller : LifetimeScope
   {
     [SerializeField] private FieldData _fieldData;
-    [SerializeField] private ChipInjectorsData _chipInjectorsData;
     
     [SerializeField] private CellView _cellViewPrefab;
     [SerializeField] private ChipView _chipViewPrefab;
@@ -22,7 +21,6 @@ namespace Gameplay.Services
     protected override void Configure(IContainerBuilder builder)
     {
       builder.RegisterInstance(_fieldData);
-      builder.RegisterInstance(_chipInjectorsData);
 
       builder.RegisterInstance(_cellViewPrefab);
       builder.RegisterInstance(_chipViewPrefab);
