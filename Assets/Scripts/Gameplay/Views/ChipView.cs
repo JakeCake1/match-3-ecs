@@ -43,25 +43,25 @@ namespace Gameplay.Views
     public float GetSize() => 
       (transform.localScale.x + transform.localScale.y + transform.localScale.z)/3;
 
-    public Tween Spawn()
+    public Tween Spawn(float duration, Ease ease)
     {
-      return transform.DOScale(0.75f, .2f)
-        .SetEase(Ease.Linear)
+      return transform.DOScale(0.75f, duration)
+        .SetEase(ease)
         .SetAutoKill();
     }
 
-    public Tween Destroy()
+    public Tween Destroy(float duration, Ease ease)
     {
-      return transform.DOScale(0, .2f)
-        .SetEase(Ease.Linear)
+      return transform.DOScale(0, duration)
+        .SetEase(ease)
         .SetAutoKill()
         .OnComplete(() => Destroy(gameObject));
     }
 
-    public Tween AnimateToPosition(Vector2Int chipPosition)
+    public Tween AnimateToPosition(float duration, Ease ease, Vector2Int chipPosition)
     {
-      return transform.DOMove(chipPosition + _fieldDataOffset * chipPosition, .2f)
-        .SetEase(Ease.Linear)
+      return transform.DOMove(chipPosition + _fieldDataOffset * chipPosition, duration)
+        .SetEase(ease)
         .SetAutoKill();
     }
   }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Gameplay.Components.Animation;
 using Gameplay.Components.Animation.Markers;
+using Gameplay.Data;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Animation
@@ -13,6 +14,11 @@ namespace Gameplay.Systems.Animation
     private EcsPool<AnimationInExecutionComponent> _animationExecutionPool;
     
     private int _animationBufferEntityIndex;
+    
+    private readonly FieldAnimationData _fieldAnimationData;
+
+    public AnimationExecutionSystem(FieldAnimationData fieldAnimationData) => 
+      _fieldAnimationData = fieldAnimationData;
 
     public void Init(IEcsSystems systems)
     {
@@ -60,13 +66,13 @@ namespace Gameplay.Systems.Animation
         switch (animationCommand.Type)
         {
           case AnimationType.Move:
-            sequence.Join(animationCommand.TargetObject.AnimateToPosition(animationCommand.TargetPosition));
+            sequence.Join(animationCommand.TargetObject.AnimateToPosition(_fieldAnimationData.Duration, _fieldAnimationData.Ease, animationCommand.TargetPosition));
             break;
           case AnimationType.Destroy:
-            sequence.Join(animationCommand.TargetObject.Destroy());
+            sequence.Join(animationCommand.TargetObject.Destroy(_fieldAnimationData.Duration, _fieldAnimationData.Ease));
             break;
           case AnimationType.Spawn:
-            sequence.Join(animationCommand.TargetObject.Spawn());
+            sequence.Join(animationCommand.TargetObject.Spawn(_fieldAnimationData.Duration, _fieldAnimationData.Ease));
             break;
         }
       }
