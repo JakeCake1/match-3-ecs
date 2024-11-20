@@ -109,6 +109,8 @@ namespace Gameplay.Systems.Movement
     {
       ref GridPositionComponent chipPosition = ref _positionsPool.Get(freeChipEntityIndex);
       ref ChipComponent chip = ref _chipsPool.Get(freeChipEntityIndex);
+      
+      Vector2Int cachedPosition = chipPosition.Position;
 
       SetupChip(ref chip, ref chipPosition);
       ModifyChipField(ref chipPosition, ref chipsField);
@@ -127,8 +129,6 @@ namespace Gameplay.Systems.Movement
 
       void ModifyChipField(ref GridPositionComponent chipPosition, ref ChipsFieldComponent chipsField)
       {
-        Vector2Int cachedPosition = chipPosition.Position;
-
         chipsField.Grid[cachedPosition.x, cachedPosition.y] = default;
         chipsField.Grid[cachedPosition.x, cachedPosition.y] = -1;
         chipsField.Grid[chipPosition.Position.x, chipPosition.Position.y] = freeChipEntityIndex;
