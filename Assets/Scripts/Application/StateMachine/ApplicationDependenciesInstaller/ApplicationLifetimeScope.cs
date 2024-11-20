@@ -7,11 +7,8 @@ using VContainer.Unity;
 
 namespace Application.StateMachine.ApplicationDependenciesInstaller
 {
-  /// \class ApplicationLifetimeScope
-  /// \brief Класс, отвечающий за инъекцию сервисов в приложении
   public sealed class ApplicationLifetimeScope : LifetimeScope
   {  
-    /// \brief Метод конфигурации зависимостей сервисов
     protected override void Configure(IContainerBuilder builder)
     {
       new AssetProviderInstaller().Install(builder);
@@ -20,7 +17,6 @@ namespace Application.StateMachine.ApplicationDependenciesInstaller
       RegisterEntryPoint(builder);
     }
 
-    /// \brief Метод регистрации точки входа и основных состояний приложения
     private void RegisterEntryPoint(IContainerBuilder builder)
     {
       builder.RegisterEntryPoint<Bootstrapper>();

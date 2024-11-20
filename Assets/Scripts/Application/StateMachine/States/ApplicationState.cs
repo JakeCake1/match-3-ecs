@@ -7,9 +7,7 @@ using UniRx;
 namespace Application.StateMachine.States
 {  
   public sealed class ApplicationState : IApplicationState
-  {   
-    private readonly IApplicationStateMachine _applicationStateMachine;
-
+  {
     private readonly IDependenciesContainer _dependenciesContainer;
     private IEnumerable<IEcsSystem> _ecsSystems;
 
@@ -18,11 +16,8 @@ namespace Application.StateMachine.States
 
     private CompositeDisposable _disposables;
 
-    public ApplicationState(IDependenciesContainer dependenciesContainer, IApplicationStateMachine applicationStateMachine)
-    {
-      _applicationStateMachine = applicationStateMachine;
+    public ApplicationState(IDependenciesContainer dependenciesContainer) => 
       _dependenciesContainer = dependenciesContainer;
-    }
 
     public async void Enter()
     {    
