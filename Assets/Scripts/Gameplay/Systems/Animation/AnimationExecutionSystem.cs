@@ -65,6 +65,9 @@ namespace Gameplay.Systems.Animation
           case AnimationType.Destroy:
             sequence.Join(animationCommand.TargetObject.Destroy());
             break;
+          case AnimationType.Spawn:
+            sequence.Join(animationCommand.TargetObject.Spawn());
+            break;
         }
       }
       

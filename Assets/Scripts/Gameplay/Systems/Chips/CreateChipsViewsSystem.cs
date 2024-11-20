@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Gameplay.Components.Animation;
 using Gameplay.Components.Chips;
 using Gameplay.Components.Common;
 using Gameplay.Data;
@@ -19,6 +21,8 @@ namespace Gameplay.Systems.Chips
     private EcsPool<ChipComponent> _chipsPool;
     private EcsPool<GridPositionComponent> _gridPositionsPool;
     private EcsPool<ChipViewRefComponent> _chipViewRefsPool;
+    
+    private EcsPool<AnimationBufferComponent> _animationBufferPool;
 
     private GameObject _chipsParent;
 
@@ -37,6 +41,8 @@ namespace Gameplay.Systems.Chips
       _chipsPool = world.GetPool<ChipComponent>();
       _gridPositionsPool = world.GetPool<GridPositionComponent>();
       _chipViewRefsPool = world.GetPool<ChipViewRefComponent>();
+      
+      _animationBufferPool = world.GetPool<AnimationBufferComponent>();
 
       CreateChipsParentObject();
     }
@@ -45,9 +51,13 @@ namespace Gameplay.Systems.Chips
     {
       if (AllChipsHaveViews())
         return;
+      
+      List<AnimationCommand> animationCommands = new List<AnimationCommand>();
 
       foreach (int chipEntity in _chipsWithoutViews) 
-        CreateChipView(chipEntity);
+        CreateChipView(animationCommands, chipEntity);
+      
+      _animationBufferPool.GetRawDenseItems()[1].Buffer.Enqueue(animationCommands);
 
       bool AllChipsHaveViews() => 
         _chipsWithoutViews.GetEntitiesCount() == 0;
@@ -56,7 +66,7 @@ namespace Gameplay.Systems.Chips
     public void Destroy(IEcsSystems systems) => 
       DestroyChipsParentObject();
 
-    private void CreateChipView(int chipEntity)
+    private void CreateChipView(List<AnimationCommand> animationCommands, int chipEntity)
     {
       ref ChipViewRefComponent chipViewRef = ref _chipViewRefsPool.Add(chipEntity);
       
@@ -74,6 +84,12 @@ namespace Gameplay.Systems.Chips
         chipView.SetPosition(gridPosition.Position);
         chipView.SetType(chip.Type);
       }
+      
+      animationCommands.Add(new AnimationCommand
+      {
+        Type = AnimationType.Spawn,
+        TargetObject = chipView,
+      });
 
       void AttachViewToChipReference(ref ChipViewRefComponent chipViewRef) => 
         chipViewRef.ChipView = chipView;
