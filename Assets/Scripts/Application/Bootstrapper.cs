@@ -13,7 +13,10 @@ namespace Application
     public void Construct(IApplicationStateMachine applicationStateMachine) =>
       _applicationStateMachine = applicationStateMachine;
 
-    private void Start() =>
+    private void Start()
+    {
+      UnityEngine.Application.targetFrameRate = 60;
       _applicationStateMachine.Enter<StartupState>();
+    }
   }
 }
