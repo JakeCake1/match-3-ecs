@@ -44,7 +44,7 @@ namespace Gameplay.Systems.Field_State
       }
 
       bool ChipIsNotInitialized(int chipEntityIndex) => 
-        chipEntityIndex == -1 || !_chipsPool.Has(chipEntityIndex);
+        chipEntityIndex == -1;
 
       bool NextChipInLineIsDifferent(int chipEntityIndex) => 
         chipsCombo.Peek().Type != _chipsPool.Get(chipEntityIndex).Type;
@@ -66,7 +66,7 @@ namespace Gameplay.Systems.Field_State
       chipsCombo.Enqueue(_chipsPool.Get(chipsFieldComponent.Grid[x, y]));
       
       bool ChipIsNotInitialized(int chipEntityIndex) => 
-        chipEntityIndex == -1 || !_chipsPool.Has(chipEntityIndex);
+        chipEntityIndex == -1;
     }
 
     private void AddCombinationsToMergeBuffer(List<Queue<ChipComponent>> combinations)
