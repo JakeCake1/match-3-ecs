@@ -4,6 +4,7 @@ using DG.Tweening;
 using Gameplay.Components.Animation;
 using Gameplay.Components.Animation.Markers;
 using Gameplay.Data;
+using Gameplay.Services.AnimationService;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Animation
@@ -15,10 +16,10 @@ namespace Gameplay.Systems.Animation
     
     private int _animationBufferEntityIndex;
     
-    private readonly FieldAnimationData _fieldAnimationData;
+    private readonly IAnimationService _animationService;
 
-    public AnimationExecutionSystem(FieldAnimationData fieldAnimationData) => 
-      _fieldAnimationData = fieldAnimationData;
+    public AnimationExecutionSystem(IAnimationService animationService) => 
+      _animationService = animationService;
 
     public void Init(IEcsSystems systems)
     {
@@ -61,21 +62,8 @@ namespace Gameplay.Systems.Animation
     {
       Sequence sequence = DOTween.Sequence();
       
-      foreach (AnimationCommand animationCommand in animationCommands)
-      {
-        switch (animationCommand.Type)
-        {
-          case AnimationType.Move:
-            sequence.Join(animationCommand.TargetObject.AnimateToPosition(_fieldAnimationData.Duration, _fieldAnimationData.Ease, animationCommand.TargetPosition));
-            break;
-          case AnimationType.Destroy:
-            sequence.Join(animationCommand.TargetObject.Destroy(_fieldAnimationData.Duration, _fieldAnimationData.Ease));
-            break;
-          case AnimationType.Spawn:
-            sequence.Join(animationCommand.TargetObject.Spawn(_fieldAnimationData.Duration, _fieldAnimationData.Ease));
-            break;
-        }
-      }
+      foreach (AnimationCommand animationCommand in animationCommands) 
+        sequence.Join(_animationService.StartAnimation(animationCommand));
       
       animationCommands.Clear();
       sequence.OnComplete(onCompleteAnimation.Invoke);

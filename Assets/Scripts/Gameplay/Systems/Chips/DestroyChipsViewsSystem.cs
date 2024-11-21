@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gameplay.Components.Animation;
 using Gameplay.Components.Chips.Markers;
+using Gameplay.Services.AnimationService;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Chips

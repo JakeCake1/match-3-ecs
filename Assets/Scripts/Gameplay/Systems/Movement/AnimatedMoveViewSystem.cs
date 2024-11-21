@@ -3,6 +3,7 @@ using Gameplay.Components.Animation;
 using Gameplay.Components.Chips;
 using Gameplay.Components.Chips.Markers;
 using Gameplay.Components.Movement;
+using Gameplay.Services.AnimationService;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Movement

@@ -28,12 +28,14 @@ namespace Application.ContainerMediator
     {       
       _gamePlayInstaller = new GamePlayInstaller(_assetProvider);
       var gameSystemsInstaller = new GameSystemsInstaller();
+      var gameServicesInstaller = new GameServicesInstaller();
       
       await _gamePlayInstaller.Preload();
       
       _applicationScope = _applicationLifetimeScope.CreateChild(builder =>
       {
         _gamePlayInstaller.Install(builder);
+        gameServicesInstaller.Install(builder);
         gameSystemsInstaller.Install(builder);
       });
     }

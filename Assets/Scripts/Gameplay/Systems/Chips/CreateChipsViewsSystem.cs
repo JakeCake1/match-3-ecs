@@ -3,6 +3,7 @@ using Gameplay.Components.Animation;
 using Gameplay.Components.Chips;
 using Gameplay.Components.Common;
 using Gameplay.Data;
+using Gameplay.Services.AnimationService;
 using Gameplay.Views;
 using Leopotam.EcsLite;
 using UnityEngine;
