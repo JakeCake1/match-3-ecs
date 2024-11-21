@@ -86,14 +86,19 @@ namespace Gameplay.Systems.Chips
         chipView.SetType(chip.Type);
       }
       
-      animationCommands.Add(new AnimationCommand
-      {
-        Type = AnimationType.Spawn,
-        TargetObject = chipView,
-      });
+      PushAnimationCommandIntoBuffer();
 
       void AttachViewToChipReference(ref ChipViewRefComponent chipViewRef) => 
         chipViewRef.ChipView = chipView;
+
+      void PushAnimationCommandIntoBuffer()
+      {
+        animationCommands.Add(new AnimationCommand
+        {
+          Type = AnimationType.Spawn,
+          TargetObject = chipView,
+        });
+      }
     }
 
     private void CreateChipsParentObject() =>
