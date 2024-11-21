@@ -27,7 +27,7 @@ namespace Gameplay.Systems.Chips
 
     public void Run(IEcsSystems systems)
     {
-      if(_chipsViewsForDestroyFilter.GetEntitiesCount() <= 0)
+      if(DontHaveViewsForDestroy())
         return;
       
       List<AnimationCommand> animationCommands = new List<AnimationCommand>();
@@ -36,22 +36,29 @@ namespace Gameplay.Systems.Chips
         DestroyChipView(animationCommands, commandEntityIndex);
       
       _animationBufferPool.GetRawDenseItems()[1].Buffer.Enqueue(animationCommands);
+
+      bool DontHaveViewsForDestroy() => 
+        _chipsViewsForDestroyFilter.GetEntitiesCount() <= 0;
     }
 
     private void DestroyChipView(List<AnimationCommand> animationCommands, int commandEntityIndex)
     {
       ref ChipViewForDestroyComponent chipForDestroyComponent = ref _chipsViewsForDestroyPool.Get(commandEntityIndex);
 
-      animationCommands.Add(new AnimationCommand
-      {
-        Type = AnimationType.Destroy,
-        TargetObject = chipForDestroyComponent.ChipView,
-      });
-      
+      PushAnimationCommandIntoBuffer(ref chipForDestroyComponent);
       DestroyChipViewDeleteCommand();
       
       void DestroyChipViewDeleteCommand() => 
         _world.DelEntity(commandEntityIndex);
+
+      void PushAnimationCommandIntoBuffer(ref ChipViewForDestroyComponent chipForDestroyComponent)
+      {
+        animationCommands.Add(new AnimationCommand
+        {
+          Type = AnimationType.Destroy,
+          TargetObject = chipForDestroyComponent.ChipView,
+        });
+      }
     }
   }
 }
