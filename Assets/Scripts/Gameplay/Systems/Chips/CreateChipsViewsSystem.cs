@@ -3,6 +3,7 @@ using Gameplay.Components.Animation;
 using Gameplay.Components.Chips;
 using Gameplay.Components.Common;
 using Gameplay.Data;
+using Gameplay.Services.AnimationService;
 using Gameplay.Views;
 using Leopotam.EcsLite;
 using UnityEngine;
@@ -85,14 +86,19 @@ namespace Gameplay.Systems.Chips
         chipView.SetType(chip.Type);
       }
       
-      animationCommands.Add(new AnimationCommand
-      {
-        Type = AnimationType.Spawn,
-        TargetObject = chipView,
-      });
+      PushAnimationCommandIntoBuffer();
 
       void AttachViewToChipReference(ref ChipViewRefComponent chipViewRef) => 
         chipViewRef.ChipView = chipView;
+
+      void PushAnimationCommandIntoBuffer()
+      {
+        animationCommands.Add(new AnimationCommand
+        {
+          Type = AnimationType.Spawn,
+          TargetObject = chipView,
+        });
+      }
     }
 
     private void CreateChipsParentObject() =>

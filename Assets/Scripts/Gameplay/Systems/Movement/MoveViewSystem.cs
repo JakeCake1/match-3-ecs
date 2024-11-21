@@ -3,11 +3,12 @@ using Gameplay.Components.Animation;
 using Gameplay.Components.Chips;
 using Gameplay.Components.Chips.Markers;
 using Gameplay.Components.Movement;
+using Gameplay.Services.AnimationService;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Movement
 {
-  public class AnimatedMoveViewSystem : IEcsInitSystem, IEcsRunSystem
+  public class MoveViewSystem : IEcsInitSystem, IEcsRunSystem
   {
     private EcsFilter _viewsNeedsUpdatePositionFilter;
 
@@ -52,17 +53,21 @@ namespace Gameplay.Systems.Movement
       ref ChipViewRefComponent chipViewRefComponent = ref _viewsRefsPool.Get(viewEntityIndex);
       ref MoveViewCommand moveViewCommand = ref _moveViewsCommandsPool.Get(viewEntityIndex);
 
-      animationCommands.Add(new AnimationCommand
-      {
-        Type = AnimationType.Move,
-        TargetObject = chipViewRefComponent.ChipView,
-        TargetPosition = moveViewCommand.NewViewPosition
-      });
-
+      PushAnimationCommandIntoBuffer(ref chipViewRefComponent, ref moveViewCommand);
       DeleteMoveCommand();
       
       void DeleteMoveCommand() =>
         _moveViewsCommandsPool.Del(viewEntityIndex);
+
+      void PushAnimationCommandIntoBuffer(ref ChipViewRefComponent chipViewRefComponent, ref MoveViewCommand moveViewCommand)
+      {
+        animationCommands.Add(new AnimationCommand
+        {
+          Type = AnimationType.Move,
+          TargetObject = chipViewRefComponent.ChipView,
+          TargetPosition = moveViewCommand.NewViewPosition
+        });
+      }
     }
   }
 }

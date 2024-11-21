@@ -1,4 +1,4 @@
-namespace Gameplay.Components.Animation
+namespace Gameplay.Services.AnimationService
 {
   public enum AnimationType
   {
