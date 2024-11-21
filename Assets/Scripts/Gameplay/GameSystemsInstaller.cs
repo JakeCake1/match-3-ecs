@@ -28,7 +28,7 @@ namespace Gameplay
       builder.Register<IEcsSystem, FindSwapsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, SwapSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, SetPositionInGridSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, AnimatedMoveViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, MoveViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, RechargeInjectorsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyChipsSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyChipsViewsSystem>(Lifetime.Scoped);
