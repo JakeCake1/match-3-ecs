@@ -5,6 +5,7 @@
     "com.leopotam.ecslite.di": "https://github.com/Leopotam/ecslite-di.git",
     "com.leopotam.ecslite.unityeditor": "https://github.com/Leopotam/ecslite-unityeditor.git",
     "com.nenuacho.ecslite.interval-systems": "https://github.com/nenuacho/ecslite-interval-systems.git",
+	"com.benoitfreslon.vibration": "https://github.com/BenoitFreslon/Vibration.git",
     "com.unity.addressables": "1.21.21",
     "com.unity.collab-proxy": "2.2.0",
     "com.unity.feature.2d": "2.0.0",

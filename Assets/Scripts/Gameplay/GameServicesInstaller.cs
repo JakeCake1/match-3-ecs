@@ -1,4 +1,5 @@
 using Gameplay.Services.AnimationService;
+using Gameplay.Services.VibrationService;
 using VContainer;
 using VContainer.Unity;
 

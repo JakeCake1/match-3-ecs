@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using Gameplay.Components.Animation;
 using Gameplay.Components.Animation.Markers;
 using Gameplay.Services.AnimationService;
+using Gameplay.Services.VibrationService;
 using Leopotam.EcsLite;
 
 namespace Gameplay.Systems.Animation
@@ -16,9 +18,13 @@ namespace Gameplay.Systems.Animation
     private int _animationBufferEntityIndex;
 
     private readonly IAnimationService _animationService;
+    private readonly IVibrationService _vibrationService;
 
-    public AnimationExecutionSystem(IAnimationService animationService) =>
+    public AnimationExecutionSystem(IAnimationService animationService, IVibrationService vibrationService)
+    {
+      _vibrationService = vibrationService;
       _animationService = animationService;
+    }
 
     public void Init(IEcsSystems systems)
     {
@@ -73,8 +79,17 @@ namespace Gameplay.Systems.Animation
       foreach (AnimationCommand animationCommand in animationCommands)
         sequence.Join(_animationService.StartAnimation(animationCommand));
 
+      bool isDestroyAnimation = animationCommands.First().Type == AnimationType.Destroy;
+      
+      sequence.OnComplete(() =>
+      {
+        onCompleteAnimation.Invoke();
+        
+        if(isDestroyAnimation)
+          _vibrationService.Vibrate();
+      });
+      
       animationCommands.Clear();
-      sequence.OnComplete(onCompleteAnimation.Invoke);
     }
   }
 }
