@@ -2,6 +2,7 @@ using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
 using Application.StateMachine.States;
 using AssetProvider;
+using Gameplay.Services.VibrationService;
 using VContainer;
 using VContainer.Unity;
 
@@ -13,6 +14,8 @@ namespace Application.StateMachine.ApplicationDependenciesInstaller
     {
       new AssetProviderInstaller().Install(builder);
       builder.Register<IDependenciesContainer, DependenciesContainer>(Lifetime.Singleton);
+
+      builder.Register<IVibrationService, VibrationService>(Lifetime.Singleton);
 
       RegisterEntryPoint(builder);
     }
